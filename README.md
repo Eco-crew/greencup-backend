@@ -1,4 +1,4 @@
-# GreenCup_BE  
+# greencup-backend  
 EcoCrew's GreenCup Project - Backend Repository  
 
 ### 한글
@@ -12,12 +12,12 @@ cd d:\GreenCup
 ```
 ### 2. 백엔드 원격 저장소 클론  
 ```cmd
-git clone https://github.com/Eco-crew/GreenCup_BE.git  
+git clone https://github.com/Eco-crew/greencup-backend.git  
 ```
 ### 3. 클론 후 디렉토리 구조  
 ```cmd
 d:\GreenCup  
-        └─ GreenCup_BE (d:\GreenCup\GreenCup_BE)  
+        └─ greencup-backend (d:\GreenCup\greencup-backend)  
 ```
   
 ***
@@ -33,12 +33,12 @@ cd d:\GreenCup
 ```
 ### 2. Clone the backend repository
 ```cmd
-git clone https://github.com/Eco-crew/GreenCup_BE.git  
+git clone https://github.com/Eco-crew/greencup-backend.git  
 ```
 ### 3. Resulting directory structure  
 ```cmd
 d:\GreenCup  
-        └─ GreenCup_BE (d:\GreenCup\GreenCup_BE)  
+        └─ greencup-backend (d:\GreenCup\greencup-backend)  
 ```
   
 ***
