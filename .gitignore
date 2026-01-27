@@ -28,6 +28,7 @@ node_modules/
 *.db
 *.sqlite
 *.sqlite3
+*.erd
 
 # dotenv environment variable files (※ 특히 Credentials 포함한 파일 주의)
 .env
