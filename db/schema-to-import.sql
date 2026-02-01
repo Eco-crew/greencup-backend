@@ -36,8 +36,6 @@ CREATE TABLE partners (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (greencup_branch_id)
     REFERENCES greencup_branches(id)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
 )
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_0900_ai_ci;
@@ -55,13 +53,9 @@ CREATE TABLE contracts (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (partner_id),
   FOREIGN KEY (greencup_branch_id)
-    REFERENCES greencup_branches(id)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES greencup_branches(id),
   FOREIGN KEY (partner_id)
     REFERENCES partners(id)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
 )
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_0900_ai_ci;
@@ -75,8 +69,6 @@ CREATE TABLE special_closed_dates (
   PRIMARY KEY (partner_id, closed_date),
   FOREIGN KEY (partner_id)
   REFERENCES partners(id)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION
 )
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_0900_ai_ci;
@@ -95,13 +87,9 @@ CREATE TABLE daily_rentals (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (greencup_branch_id)
-    REFERENCES greencup_branches(id)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    REFERENCES greencup_branches(id),
   FOREIGN KEY (partner_id)
     REFERENCES partners(id)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
 )
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_0900_ai_ci;
