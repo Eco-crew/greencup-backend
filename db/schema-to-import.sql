@@ -3,8 +3,8 @@
 CREATE TABLE greencup_branches (
   id CHAR(36) PRIMARY KEY COLLATE utf8mb4_bin,
   manager_email VARCHAR(32) NOT NULL UNIQUE,
-  manager_name VARCHAR(4),
-  manager_phone_number VARCHAR(12),
+  manager_name VARCHAR(4) NOT NULL,
+  manager_phone_number VARCHAR(12) NOT NULL,
   password_hash VARBINARY(60),
   login_type ENUM('OAuth', 'Local') NOT NULL Default 'OAuth',
   branch_name VARCHAR(32) NOT NULL,

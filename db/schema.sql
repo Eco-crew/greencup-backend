@@ -10,8 +10,8 @@ COLLATE utf8mb4_0900_ai_ci;
 CREATE TABLE greencup_branches (
   id CHAR(36) PRIMARY KEY COLLATE utf8mb4_bin, -- UUID. 의미 있는 문자열이 아니라서 utf8mb4_bin으로 오버라이드 (byte 단위 비교)
   manager_email VARCHAR(32) NOT NULL UNIQUE, -- email (Login ID). 중복 가입 불허
-  manager_name VARCHAR(4), -- 편의를 위해서 Nullable 설정 (추후 필요하면 NOT NULL 설정)
-  manager_phone_number VARCHAR(12), -- "
+  manager_name VARCHAR(4) NOT NULL, -- 편의를 위해서 Nullable 설정 (추후 필요하면 NOT NULL 설정)
+  manager_phone_number VARCHAR(12) NOT NULL, -- "
   password_hash VARBINARY(60), -- BCrypt hash
   login_type ENUM('OAuth', 'Local') NOT NULL Default 'OAuth',
   branch_name VARCHAR(32) NOT NULL,
