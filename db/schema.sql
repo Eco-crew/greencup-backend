@@ -36,7 +36,7 @@ CREATE TABLE partners (
   site_address VARCHAR(64) NOT NULL,
   open_time TIME NOT NULL, -- 영업 시작 시간
   close_time TIME NOT NULL, -- 영업 종료 시간
-  closed_days TINYINT UNSIGNED NOT NULL DEFAULT 0, -- 1bit 정수형에 & 연산자로 bit 연산. 예) 01000000 (10진수 64) = 월, 00000011 (10진수 3) = 토일
+  closed_days TINYINT UNSIGNED NOT NULL DEFAULT 0, -- 정기 휴일. 1bit 정수형에 & 연산자로 bit 연산. 예) 01000000 (10진수 64) = 월, 00000011 (10진수 3) = 토일
   password_hash VARBINARY(60), -- BCrypt hash
   login_type ENUM('OAuth', 'Local') NOT NULL Default 'OAuth',
   business_type ENUM('office', 'public', 'cafe', 'event') NOT NULL Default 'office',
