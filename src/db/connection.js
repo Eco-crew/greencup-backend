@@ -1,10 +1,12 @@
 const mysql = require('mysql2/promise');
+const dotenv = require('dotenv').config({ quiet: true });
 
 // Create the connection to database
 async function init() {
   const connection = await mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
+    password: process.env.DB_PASS,
     database: process.env.DB_NAME,
   });
 
