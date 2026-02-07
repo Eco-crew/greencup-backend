@@ -1,5 +1,6 @@
 const path = require('path');
 const express = require('express');
+const session = require('express-session');
 const pool = require('./src/db/connection'); // MySQL Connection Pool
 const morgan = require('morgan');
 require('dotenv').config({ quiet: true }); // 환경 변수 이용
@@ -15,6 +16,7 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 // app.use(express.static('public')); // frontend가 있어서 필요 없을 듯
+app.use(express.json());
 app.use(morgan('dev'));
 
 // Middleware - Routing

@@ -7,7 +7,7 @@ function oauthLogin(req, res) {
 
   try {
     const user = service.oauthLogin({ provider });
-    res.json(user);
+    res.status(200).json(user);
   } catch (err) {
     console.log(err);
     res.status(500).json({ 'Server error': err });
@@ -19,7 +19,7 @@ function callback(req, res) {
 
   try {
     const user = service.callback({ provider });
-    res.json(user);
+    res.status(200).json(user);
   } catch (err) {
     console.log(err);
     res.status(500).json({ 'Server error': err });
@@ -28,11 +28,11 @@ function callback(req, res) {
 
 // 로컬 로그인
 function login(req, res) {
-  const { username, password } = req.query;
+  const { username, password, userType } = req.body;
 
   try {
-    const user = service.login({ username, password });
-    res.json(user);
+    const user = service.login({ username, password, userType });
+    res.status(200).json(user);
   } catch (err) {
     console.log(err);
     res.status(500).json({ 'Server error': err });
@@ -41,8 +41,8 @@ function login(req, res) {
 
 function logout(req, res) {
   try {
-    const user = service.logout();
-    res.json(user);
+    service.logout({ session: req.session });
+    res.status(200).json({ message: 'logged out' });
   } catch (err) {
     console.log(err);
     res.status(500).json({ 'Server error': err });
@@ -54,7 +54,7 @@ function profile(req, res) {
 
   try {
     const user = service.profile();
-    res.json(user);
+    res.status(200).json(user);
   } catch (err) {
     console.log(err);
     res.status(500).json({ 'Server error': err });

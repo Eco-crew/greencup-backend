@@ -1,12 +1,11 @@
 // DB job
-// Business Logic
-const db = require('mysql'); // 패키지명부터 찾아봐야 한다.
+const { connection } = require('../db/connection');
 
 // OAuth 기반 로그인
 function oauthLogin({ provider }) {
 
   try {
-    const user = repository.oauthLogin({ provider });
+    const user = connection.execute();
     res.json(user);
   } catch (err) {
     console.log(err);
@@ -17,7 +16,7 @@ function oauthLogin({ provider }) {
 function callback({ provider }) {
 
   try {
-    const user = repository.callback({ provider });
+    const user = connection.execute();
     res.json(user);
   } catch (err) {
     console.log(err);
@@ -26,10 +25,17 @@ function callback({ provider }) {
 }
 
 // 로컬 로그인
-function login({ username, password }) {
+function login({ username, password, userType }) {
 
   try {
-    const user = repository.login({ username, password });
+    const table = userType === 'reuseOperator' ? 'greencup_branches' : 'partners';
+    const query = `
+    SELECT *
+      FROM ${table}
+     WHERE manager_email = ?
+       `;
+    const user = connection.execute();
+    // ({ username, password });
     res.json(user);
   } catch (err) {
     console.log(err);
@@ -37,21 +43,15 @@ function login({ username, password }) {
   }
 };
 
-function logout(req, _) {
-  try {
-    const user = repository.logout();
-    res.json(user);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ 'Server error': err });
-  }
-};
+// 로컬 로그아웃 기능은 DB 작업이 없어서 service layer에서 처리
+// function logout() {
+// }
 
 // My page
 function profile({ username, password }) {
 
   try {
-    const user = repository.profile();
+    const user = connection.execute();
     res.json(user);
   } catch (err) {
     console.log(err);

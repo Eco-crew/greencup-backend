@@ -5,11 +5,10 @@ const repository = require('./repository');
 function oauthLogin({ provider }) {
 
   try {
-    const user = repository.oauthLogin({ provider });
-    res.json(user);
+    const code = repository.oauthLogin({ provider });
+    return code;
   } catch (err) {
     console.log(err);
-    res.status(500).json({ 'Server error': err });
   }
 }
 
@@ -17,32 +16,32 @@ function callback({ provider }) {
 
   try {
     const user = repository.callback({ provider });
-    res.json(user);
+    return user;
   } catch (err) {
     console.log(err);
-    res.status(500).json({ 'Server error': err });
   }
 }
 
 // 로컬 로그인
-function login({ username, password }) {
+function login({ username, password, userType }) {
 
   try {
-    const user = repository.login({ username, password });
-    res.json(user);
+    const user = repository.login({ username, password, userType });
+    return user;
   } catch (err) {
     console.log(err);
-    res.status(500).json({ 'Server error': err });
   }
 };
 
-function logout(req, _) {
+function logout(session) {
   try {
-    const user = repository.logout();
-    res.json(user);
+    if (!session?.user) {
+      return;
+    }
+    delete session.user;
   } catch (err) {
     console.log(err);
-    res.status(500).json({ 'Server error': err });
+    throw new Error('login error:', err);
   }
 };
 
@@ -51,10 +50,9 @@ function profile({ username, password }) {
 
   try {
     const user = repository.profile();
-    res.json(user);
+    return user;
   } catch (err) {
     console.log(err);
-    res.status(500).json({ 'Server error': err });
   }
 };
 
