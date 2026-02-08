@@ -17,6 +17,11 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 // app.use(express.static('public')); // frontend가 있어서 필요 없을 듯
 app.use(express.json());
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false // `false` is useful for implementing login sessions, reducing server storage usage, or 생략
+}));
 app.use(morgan('dev'));
 
 // Middleware - Routing

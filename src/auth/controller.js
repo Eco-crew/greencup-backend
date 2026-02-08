@@ -1,7 +1,10 @@
-// 엔티티별 요청 처리
+// 엔티티별 요청(HTTP Request) 처리
 const service = require('./service');
 
-// OAuth 기반 로그인
+
+/**********************
+ *  OAuth 기반 로그인  *
+ **********************/
 function oauthLogin(req, res) {
   const { provider } = req.params;
 
@@ -26,13 +29,21 @@ function callback(req, res) {
   }
 }
 
-// 로컬 로그인
+
+/**********************
+ *    로컬 로그인      *
+ **********************/
 function login(req, res) {
-  const { username, password, userType } = req.body;
+  const { userId, password, userType } = req.body;
 
   try {
-    const user = service.login({ username, password, userType });
-    res.status(200).json(user);
+    const user = service.login({ userId, password, userType });
+    if (user) {
+      user.userType = userType;
+      return res.status(200).json(user);
+    }
+    res.status(404).json('user');
+
   } catch (err) {
     console.log(err);
     res.status(500).json({ 'Server error': err });
@@ -48,6 +59,7 @@ function logout(req, res) {
     res.status(500).json({ 'Server error': err });
   }
 };
+
 
 // My page
 function profile(req, res) {
