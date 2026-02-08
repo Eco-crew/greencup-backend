@@ -1,7 +1,7 @@
 USE greencup;
 
 -- 재사용 컵 업체 테이블 샘플 데이터
-INSERT INTO greencup_branches VALUES(UUID(), 'seongdong@greencup.co.kr', '공수거', '01054326987', '$2b$10$HGmUXu7npilydQmHGB1UIeMVD8ysoUYeh2y1QYdJVKOhJp7/AQOo2', 'Local', '그린컵 성동점', 5000, 5000, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO greencup_branches VALUES(UUID(), 'seongdong@greencup.co.kr', '공수거', '01054326987', '$2b$10$jD9szVjKgf2JK2ikuHCGgOb.0pKaHp1gmmBjGohiobC7PGS7qkoTq', 'Local', '그린컵 성동점', 5000, 5000, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 -- id: 523f7925-0038-11f1-a40e-1295856e2c3b
 INSERT INTO greencup_branches VALUES(UUID(), 'dongdaemun@greencup.co.kr', '공수래', '01096285252', '$2b$10$679rRfVNW7u.fuozuh.k9e62zEJjzjKkM.TPR5LlcTjb7EdqlCiy6', 'Local', '그린컵 동대문점', 6977, 3577, 23, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 -- id: f4517ddd-0038-11f1-a40e-1295856e2c3b
