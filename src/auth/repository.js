@@ -55,7 +55,7 @@ async function findUserByLoginId({ username, userType = 'reuseOperator' }) {
     `;
 
     const [user] = await connection.execute(query, [username]); // execute 함수 2번째 인수, 반환값 모두 배열 형태로 받아야 함
-    return user[0];
+    return user[0] || null; // 위에서 쿼리 결과가 없으면 빈 배열이 할당되는데, 빈배열[0]은 undefined 이므로 가독성을 위해서 null로 변환
 
   } finally {
     if (connection) connection.release();
@@ -81,7 +81,7 @@ async function profile({ username, password }) {
     `;
 
     const [user] = await connection.execute(query, [username]);
-    return user;
+    return user[0] || null;
 
   } finally {
     if (connection) connection.release();

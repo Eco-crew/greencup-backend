@@ -25,7 +25,8 @@ function callback({ provider }) {
  **********************/
 async function login({ username, password, userType }) {
 
-  const { id, manager_email, manager_name, password_hash } = await repository.findUserByLoginId({ username, userType });
+  const user = await repository.findUserByLoginId({ username, userType }) || {}; // 결과값이 없을 때 구조분해할당 오류 방지용 빈 객체
+  const { id, manager_email, manager_name, password_hash } = user;
 
   // Timing attack 예방용 더미 해시 이용 (bcrypt hash, salt rounds (cost factor): 11)
   // 사용자 ID가 존재할 때만 bcrypt.compare 함수를 실행하면, 존재하지 않을 때와 처리 속도가 달라져서 해커가 ID 존재 여부 추측 가능
@@ -35,7 +36,7 @@ async function login({ username, password, userType }) {
   const isValid = await bcrypt.compare(password, hash);
 
   if (!isValid) {
-    throw new AuthError('아이디나 비밀번호가 맞지 않습니다.');
+    throw new AuthError('아이디나 비밀번호가 맞지 않습니다.'); // 보안을 위해서 어느 것이 틀린지 정확한 정보를 제공하지 않음
   }
   return { id, manager_email, manager_name };
 };
