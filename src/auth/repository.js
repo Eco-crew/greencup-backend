@@ -13,7 +13,7 @@ async function oauthLogin({ provider }) {
   try {
     // connection = await db.getConnection();
 
-    // const user = await connection.execute();
+    // const [user] = await connection.execute();
     // return user;
 
   } finally { // 반드시 처리해야 하는 마무리 작업은, 오류 발생시에도 '반드시 실행되는' finally 블록 안에서 처리 (try finally 없으면 실행 보장 불가)
@@ -27,7 +27,7 @@ async function callback({ provider }) {
   try {
     // connection = await db.getConnection();
 
-    // const user = await connection.execute();
+    // const [user] = await connection.execute();
     // return user;
 
   } finally {
@@ -54,7 +54,7 @@ async function findUserByLoginId({ username, userType = 'reuseOperator' }) {
      WHERE manager_email = ?
     `;
 
-    const user = await connection.execute(query, username);
+    const [user] = await connection.execute(query, [username]);
     return user;
 
   } finally {
@@ -66,7 +66,7 @@ async function findUserByLoginId({ username, userType = 'reuseOperator' }) {
 
 
 // My page
-async function profile({ userId, password }) {
+async function profile({ username, password }) {
   // 인증 미들웨어 통과해서 왔는데도, 인수로 id, 비밀번호를 받아서 쿼리할 때 또 조건문에 넣어야 하나?
   let connection;
 
@@ -80,7 +80,7 @@ async function profile({ userId, password }) {
      WHERE manager_email = ? (미완성)
     `;
 
-    const user = await connection.execute(query, userId);
+    const [user] = await connection.execute(query, [username]);
     return user;
 
   } finally {
