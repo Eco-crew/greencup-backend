@@ -1,1 +1,12 @@
-// 엔티티별 요청 처리
+const service = require('./service');
+
+function getRequests(req, res) {
+  try {
+    const requests = service.getRequests();
+    // 진행중
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { getRequests };
