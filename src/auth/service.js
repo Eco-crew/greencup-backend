@@ -31,7 +31,7 @@ async function login({ username, password, userType }) {
   // 사용자 ID가 존재할 때만 bcrypt.compare 함수를 실행하면, 존재하지 않을 때와 처리 속도가 달라져서 해커가 ID 존재 여부 추측 가능
   // 그러므로 존재하지 않을 때에도 더미 해시를 가지고 compare 함수를 실행해서 로그인 처리 속도를 비슷하게 맞춤으로써, 해커 공격 예방
   const DUMMY_HASH = '$2b$11$00000000000000000000000000000000000000000000000000000';
-  const hash = password_hash || DUMMY_HASH;
+  const hash = password_hash.toString() || DUMMY_HASH;
   const isValid = await bcrypt.compare(password, hash);
 
   if (!isValid) {
