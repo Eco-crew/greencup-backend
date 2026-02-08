@@ -54,8 +54,8 @@ async function findUserByLoginId({ username, userType = 'reuseOperator' }) {
      WHERE manager_email = ?
     `;
 
-    const [user] = await connection.execute(query, [username]);
-    return user;
+    const [user] = await connection.execute(query, [username]); // execute 함수 2번째 인수, 반환값 모두 배열 형태로 받아야 함
+    return user[0];
 
   } finally {
     if (connection) connection.release();
