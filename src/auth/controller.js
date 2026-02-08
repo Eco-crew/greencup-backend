@@ -45,7 +45,6 @@ async function login(req, res, next) {
       return res.status(200).json(user);
     }
   } catch (err) {
-    console.log(err);
     next(err); // Error Handler가 오류를 처리하도록 위임
   }
 };
@@ -55,8 +54,8 @@ function logout(req, res) {
     service.logout({ session: req.session });
     res.status(200).json({ message: 'logged out' });
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ 'Server error': err });
+    // res.status(500).json({ 'Server error': err });
+    next(err);
   }
 };
 
