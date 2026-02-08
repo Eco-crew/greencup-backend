@@ -4,4 +4,4 @@ const controller = require('./controller');
 const authMiddleware = require('../shared/middlewares/auth');
 
 // 대여 요청 현황
-router.get('/api/reuse-operator/requests', authMiddleware.checkLogin, controller.getRequests);
+// router.get('/api/reuse-operator/requests', authMiddleware.checkLogin, controller.getRequests);
