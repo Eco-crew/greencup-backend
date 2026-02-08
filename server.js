@@ -4,7 +4,7 @@ const session = require('express-session');
 const morgan = require('morgan');
 require('dotenv').config({ quiet: true }); // 환경 변수 이용
 const { pool } = require('./src/db/connection'); // MySQL Connection Pool
-const { errorHandler } = require('./src/shared/middlewares/errorHandler'); // Error Handler
+const errorHandler = require('./src/shared/middlewares/errorHandler'); // Error Handler
 // Routers
 const authRoute = require('./src/auth/route');
 const reuseOperatorRoute = require('./src/reuse-operator/route');
@@ -26,8 +26,8 @@ app.use(morgan('dev'));
 
 // Middleware - Routing
 app.use('/', authRoute);
-app.use('/', reuseOperatorRoute);
-app.use('/', partnerRoute);
+// app.use('/', reuseOperatorRoute);
+// app.use('/', partnerRoute);
 
 // Middleware - Error Handler (※ 모든 라우터 등록 후 마지막에 등록해야 함!)
 app.use(errorHandler);
