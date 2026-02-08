@@ -23,9 +23,9 @@ function callback({ provider }) {
 /**********************
  *    로컬 로그인      *
  **********************/
-async function login({ userId, password, userType }) {
+async function login({ username, password, userType }) {
 
-  const { id, manager_email, manager_name, password_hash } = repository.findUserByLoginId({ userId, userType });
+  const { id, manager_email, manager_name, password_hash } = repository.findUserByLoginId({ username, userType });
 
   // Timing attack 예방용 더미 해시 이용 (bcrypt hash, salt rounds (cost factor): 11)
   // 사용자 ID가 존재할 때만 bcrypt.compare 함수를 실행하면, 존재하지 않을 때와 처리 속도가 달라져서 해커가 ID 존재 여부 추측 가능

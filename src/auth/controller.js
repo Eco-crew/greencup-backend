@@ -34,10 +34,10 @@ function callback(req, res) {
  *    로컬 로그인      *
  **********************/
 async function login(req, res, next) {
-  const { userId, password, userType } = req.body;
+  const { username, password, userType } = req.body;
 
   try {
-    const user = await service.login({ userId, password, userType });
+    const user = await service.login({ username, password, userType });
     if (user) {
       user.userType = userType;
       req.session.user = user;

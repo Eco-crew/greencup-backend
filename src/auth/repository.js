@@ -41,7 +41,7 @@ async function callback({ provider }) {
  **********************/
 // function findUserByLoginId({ userId, userType }) {
 // 아직 프런트엔드와 조율되지 않아서, 기본값을 재사용 컵 사업자로 설정함으로써 인수가 없어도 실행되도록 했다.
-async function findUserByLoginId({ userId, userType = 'reuseOperator' }) {
+async function findUserByLoginId({ username, userType = 'reuseOperator' }) {
   let connection;
 
   try {
@@ -54,7 +54,7 @@ async function findUserByLoginId({ userId, userType = 'reuseOperator' }) {
      WHERE manager_email = ?
     `;
 
-    const user = await connection.execute(query, userId);
+    const user = await connection.execute(query, username);
     return user;
 
   } finally {
