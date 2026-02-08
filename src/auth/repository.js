@@ -1,25 +1,26 @@
-// DB job
-const { connection } = require('../db/connection');
+// DB Connection Pool에서 가용 커넥션을 받아온다 (없으면 큐에서 요청 대기)
+const connection = require('../db/connection').getConnection();
 
 
 /**********************
  *  OAuth 기반 로그인  *
  **********************/
-function oauthLogin({ provider }) {
+async function oauthLogin({ provider }) {
 
-  // DB 쿼리 중 오류 발생시 오류는 Controller layer로 넘겨서 처리하므로 catch 블록 제외. 단, 리소스 반환 때문에 finally 구문은 사용
+  // DB 쿼리 중 오류 발생시 오류는 Controller layer → Error Handler로 넘겨서 처리하므로 catch 블록 제외
+  // 단, 리소스 반환 때문에 finally 구문은 사용
   try {
-    const user = connection.execute();
+    const user = await connection.execute();
     res.json(user);
   } finally { // 반드시 처리해야 하는 마무리 작업은, 오류 발생시에도 '반드시 실행되는' finally 블록 안에서 처리 (try finally 없으면 실행 보장 불가)
     connection.release(); // DB 커넥션 사용 직후 커넥션풀에 커넥션을 반환함으로써 가용 리소스 확보 및 메모리 누수 방지
   }
 }
 
-function callback({ provider }) {
+async function callback({ provider }) {
 
   try {
-    const user = connection.execute();
+    const user = await connection.execute();
     res.json(user);
   } finally {
     connection.release();
@@ -30,7 +31,9 @@ function callback({ provider }) {
 /**********************
  *    로컬 로그인      *
  **********************/
-function findUserByLoginId({ userId, userType }) {
+// function findUserByLoginId({ userId, userType }) {
+// 아직 프런트엔드와 조율되지 않아서, 기본값을 재사용 컵 사업자로 설정함으로써 인수가 없어도 실행되도록 했다.
+async function findUserByLoginId({ userId, userType = 'reuseOperator' }) {
 
   try {
     const table = userType === 'reuseOperator' ? 'greencup_branches' : 'partners';
@@ -40,7 +43,7 @@ function findUserByLoginId({ userId, userType }) {
      WHERE manager_email = ?
     `;
 
-    const user = connection.execute(query, userId);
+    const user = await connection.execute(query, userId);
     return user;
 
   } finally {
@@ -48,14 +51,14 @@ function findUserByLoginId({ userId, userType }) {
   }
 };
 
-// 로컬 로그아웃 기능은 DB 작업이 없어서 service layer에서 처리
+// 로컬 로그아웃 기능은 DB 작업이 없어서 service layer에서 세션만 처리
 
 
 // My page
-function profile({ username, password }) {
+async function profile({ username, password }) {
 
   try {
-    const user = connection.execute();
+    const user = await connection.execute();
     return user;
 
   } finally {

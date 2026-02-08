@@ -33,20 +33,24 @@ function callback(req, res) {
 /**********************
  *    로컬 로그인      *
  **********************/
-function login(req, res) {
+async function login(req, res, next) {
   const { userId, password, userType } = req.body;
 
   try {
-    const user = service.login({ userId, password, userType });
+    const user = await service.login({ userId, password, userType });
     if (user) {
       user.userType = userType;
       return res.status(200).json(user);
     }
-    res.status(404).json('user');
-
   } catch (err) {
     console.log(err);
-    res.status(500).json({ 'Server error': err });
+    next(err); // Error Handler가 오류를 처리하도록 위임
+
+    // if ( ) { // 로그인 실패면
+    //   res.status(401).json({ message: err.message });
+    // } else { // 다른 오류면
+    //   res.status(500).json({ 'Server error': err });
+    // }
   }
 };
 
@@ -62,10 +66,10 @@ function logout(req, res) {
 
 
 // My page
-function profile(req, res) {
+async function profile(req, res) {
 
   try {
-    const user = service.profile();
+    const user = await service.profile();
     res.status(200).json(user);
   } catch (err) {
     console.log(err);

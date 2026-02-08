@@ -1,13 +1,15 @@
 // Business Logic
 const bcrypt = require('bcrypt');
 const repository = require('./repository');
+const AuthError = require('../errors/AuthError');
 
 
 /**********************
  *  OAuth 기반 로그인  *
  **********************/
 function oauthLogin({ provider }) {
-  // 오류 발생시 오류는 Controller layer로 넘겨서 처리하므로, 중복 코드를 제외하고 간결하게 만들기 위해서 try ~ catch 블록 제외
+  // DB 쿼리 중 오류 발생시 오류는 Controller layer → Error Handler로 넘겨서 처리하므로
+  // 중복 코드를 제외하고 간결하게 만들기 위해서 try ~ catch 블록 제외
   const code = repository.oauthLogin({ provider });
   return code;
 }
@@ -33,23 +35,23 @@ async function login({ userId, password, userType }) {
   const isValid = await bcrypt.compare(password, hash);
 
   if (!isValid) {
-    throw new Error('아이디나 비밀번호가 맞지 않습니다.');
-
+    throw new AuthError('아이디나 비밀번호가 맞지 않습니다.');
   }
   return { id, manager_email, manager_name };
 };
 
 function logout(session) {
   if (!session?.user) {
-    throw new Error('로그인 중이 아닙니다.');
+    throw new AuthError('로그인되어 있지 않습니다.');
   }
+
   delete session.user;
 };
 
 
 // My page
-function profile({ username, password }) {
-  const user = repository.profile();
+async function profile({ username, password }) {
+  const user = await repository.profile();
   return user;
 };
 
