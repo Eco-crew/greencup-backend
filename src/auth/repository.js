@@ -11,13 +11,13 @@ async function oauthLogin({ provider }) {
   let connection;
 
   try {
-    connection = await db.getConnection();
+    // connection = await db.getConnection();
 
-    const user = await connection.execute();
-    return user;
+    // const user = await connection.execute();
+    // return user;
 
   } finally { // 반드시 처리해야 하는 마무리 작업은, 오류 발생시에도 '반드시 실행되는' finally 블록 안에서 처리 (try finally 없으면 실행 보장 불가)
-    connection.release(); // DB 커넥션 사용 직후 커넥션풀에 커넥션을 반환함으로써 가용 리소스 확보 및 메모리 누수 방지
+    if (connection) connection.release(); // DB 커넥션 사용 직후 커넥션풀에 커넥션을 반환함으로써 가용 리소스 확보 및 메모리 누수 방지
   }
 }
 
@@ -25,13 +25,13 @@ async function callback({ provider }) {
   let connection;
 
   try {
-    connection = await db.getConnection();
+    // connection = await db.getConnection();
 
-    const user = await connection.execute();
-    return user;
+    // const user = await connection.execute();
+    // return user;
 
   } finally {
-    connection.release();
+    if (connection) connection.release();
   }
 }
 
@@ -58,7 +58,7 @@ async function findUserByLoginId({ userId, userType = 'reuseOperator' }) {
     return user;
 
   } finally {
-    connection.release();
+    if (connection) connection.release();
   }
 };
 
@@ -84,7 +84,7 @@ async function profile({ userId, password }) {
     return user;
 
   } finally {
-    connection.release();
+    if (connection) connection.release();
   }
 };
 
