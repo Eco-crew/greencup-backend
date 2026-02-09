@@ -19,6 +19,13 @@ INSERT INTO partners VALUES(UUID(), 'contact@sd.go.kr', '성동구청', 'seongdo
 INSERT INTO partners VALUES(UUID(), 'hello@coworkseoul.co.kr', '코워크', 'cowork', '0212349876', '코워크서울 성수점', '서울시 성동구 연무장길 57', '09:00:00', '21:00:00', 1, '$2b$10$FRBi.NkF5DkDPJt4JJUIC.hYmxw.8aGc6zEsOO8Y2YSRu9qsMUQAa', 'Local', 'office', '523f7925-0038-11f1-a40e-1295856e2c3b', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 -- id: 0fe6c42b-0124-11f1-a40e-1295856e2c3b
 
+-- 비밀번호 hash 바꿀 때 이용:
+-- update partners set password_hash='$2b$10$K/And106a/SuyUWFavob2.FKXTXbnFr5I8ZD7lxMY56sbVQtaxtFe' where manager_name='김제휴';
+-- update partners set password_hash='$2b$10$Vz2km3Nzh1blLFdiHbXryuOlNJ0ToHv1msDRs0S8eLAhDtGv16J.i' where manager_name='인스타';
+
+-- update greencup_branches set password_hash='$2b$10$K5W2x6HQ.43qLTL34loq4.c9kdAGzvPh9VpZXgXtqpudwajWuRgLq' where manager_email='seongdong@greencup.co.kr';
+-- update greencup_branches set password_hash='$2b$10$03CAVSI93H09oYSUCoTnh.cWeyGYh/BWOSUPixK5u5K90YoCaLsRa' where manager_email='dongdaemun@greencup.co.kr';
+
 
 -- 계약 테이블 샘플 데이터
 INSERT INTO contracts VALUES('2026-02-01', '2027-01-31', 300, '09:00:00', '523f7925-0038-11f1-a40e-1295856e2c3b', '6415ddc9-003a-11f1-a40e-1295856e2c3b', '8시 전에는 사람 없습니다.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
