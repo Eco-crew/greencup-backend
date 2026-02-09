@@ -50,10 +50,19 @@ function logout(session) {
 };
 
 
+// 로그인 상태 확인
+function checkLogin(session) {
+  if (!session?.user) {
+    throw new AuthError('로그인되어 있지 않습니다.');
+  }
+  return true;
+}
+
+
 // My page
 async function profile({ username, password }) {
   const user = await repository.profile();
   return user;
 };
 
-module.exports = { oauthLogin, callback, login, logout, profile };
+module.exports = { oauthLogin, callback, login, logout, checkLogin, profile };

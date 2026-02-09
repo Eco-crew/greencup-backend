@@ -60,6 +60,16 @@ function logout(req, res) {
 };
 
 
+// 로그인 상태 확인
+function checkLogin(req, res) {
+  try {
+    const isLoggedIn = service.checkLogin({ session: req.session });
+    res.status(200).json({ isLoggedIn, 'message': '로그인된 회원입니다' }); // 로그인되어 있지 않으면 service 계층에서 던진 AuthError가 에러 처리 핸들러(미들웨어)로 넘어간다.
+  } catch (err) {
+    next(err);
+  }
+}
+
 // My page
 async function profile(req, res) {
 
@@ -72,4 +82,4 @@ async function profile(req, res) {
   }
 };
 
-module.exports = { oauthLogin, callback, login, logout, profile };
+module.exports = { oauthLogin, callback, login, logout, checkLogin, profile };

@@ -11,6 +11,9 @@ router.get('/api/auth/:provider/callback', controller.callback);
 router.post('/api/auth/login', controller.login);
 router.post('/api/auth/logout', controller.logout);
 
+// 로그인 상태 확인
+router.get('/api/auth/check-login', controller.checkLogin);
+
 // My page
 router.get('/api/me', authMiddleware.checkLogin, controller.profile);
 
