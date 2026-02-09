@@ -1,21 +1,75 @@
 // Business Logic
+const path = require('path');
 const bcrypt = require('bcrypt');
+const dotenv = require('dotenv').config({
+  path: path.resolve(__dirname, '../../.env'),
+  quiet: true
+});
 const repository = require('./repository');
 const AuthError = require('../errors/AuthError');
+const AppError = require('../errors/AppError');
 
+const NAVER_CLIENT_ID = process.env.NAVER_CLIENT_ID;
+const NAVER_CLIENT_SECRET = process.env.NAVER_CLIENT_SECRET;
+const NAVER_AUTH_REDIRECT_URI = process.env.NAVER_AUTH_REDIRECT_URI;
+
+const NAVER_AUTH_URL = 'https://nid.naver.com/oauth2.0/authorize';
+const NAVER_TOKEN_URL = 'https://nid.naver.com/oauth2.0/token';
+const NAVER_USERINFO_URL = 'https://openapi.naver.com/v1/nid/me';
 
 /**********************
  *  OAuth 기반 로그인  *
  **********************/
-function oauthLogin({ provider }) {
+function oauthLogin({ provider, userType }) {
   // DB 쿼리 중 오류 발생시 오류는 Controller layer → Error Handler로 넘겨서 처리하므로
   // 중복 코드를 제외하고 간결하게 만들기 위해서 try ~ catch 블록 제외
-  const code = repository.oauthLogin({ provider });
-  return code;
+
+  if (provider === 'naver') {
+    return `${NAVER_AUTH_URL}?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${NAVER_AUTH_REDIRECT_URI}&state=login&userType=${userType}`;
+  }
 }
 
-function callback({ provider }) {
-  const user = repository.callback({ provider });
+async function callback({ code, state, userType }) {
+  // const user = repository.callback({ provider });
+  // return user;
+
+  // 1. 네이버 로그인 페이지에서 사용자가 로그인 후 받아온 코드를 검증
+  const tokenUrl = new URL(NAVER_TOKEN_URL);
+  tokenUrl.search = new URLSearchParams({
+    grant_type: 'authorization_code',
+    client_id: NAVER_CLIENT_ID,
+    client_secret: NAVER_CLIENT_SECRET,
+    code: code,
+    state: state
+  });
+
+  // 2. Callback URL 쿼리 파라미터를 통해서 받은 요청 정보를 조합해서 네이버에 Access Token 요청
+  const token = await fetch(tokenUrl.toString());
+  const tokenData = await token.json();
+  console.log('Naver에 사용자 코드를 가지고 Access Token를 요청해서 받은 정보', tokenData);
+
+
+  // 3. 네이버에서 코드 검증 후 발급해준 Access Token을 이용해서 사용자 정보 받아오기
+  console.log('Naver에서 발급한 Access Token:', tokenData.access_token);
+  const response = await fetch(NAVER_USERINFO_URL, {
+    headers: {
+      Authorization: `Bearer ${tokenData.access_token}`
+    }
+  });
+
+  if (!response.ok) {
+    throw new AppError('OAuth 사용자 정보 요청 실패', response.status);
+  }
+  const oauthUserInfo = await response.json();
+  if (!oauthUserInfo) {
+    throw new AppError('OAuth 사용자 정보 오류', 500);
+  }
+  console.log('Access Token을 가지고 요청한 사용자 정보:', oauthUserInfo.response);
+
+  // 4. 네이버에서 받아온 사용자 정보로 우리 홈페이지 회원인지 조회 (로컬 로그인 > findUserByLoginId 함수를 이용하여 처리 (공용 함수))
+  const user = await repository.findUserByLoginId({ username: oauthUserInfo.response.email, userType }) || {};
+  const { id, manager_email, manager_name } = user;
+
   return user;
 }
 

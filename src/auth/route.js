@@ -4,7 +4,7 @@ const controller = require('./controller');
 const authMiddleware = require('../shared/middlewares/auth');
 
 // OAuth 기반 로그인
-router.get('/api/auth/:provider', controller.oauthLogin);
+router.get('/api/auth/:provider/start', controller.oauthLogin);
 router.get('/api/auth/:provider/callback', controller.callback);
 
 // 로컬 로그인

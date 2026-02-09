@@ -1,31 +1,37 @@
 // 엔티티별 요청(HTTP Request) 처리
 const service = require('./service');
 
-
 /**********************
  *  OAuth 기반 로그인  *
  **********************/
 function oauthLogin(req, res) {
   const { provider } = req.params;
+  const { userType } = req.query;
 
   try {
-    const user = service.oauthLogin({ provider });
-    res.status(200).json(user);
+    // OAuth provider 별 로그인 페이지로 연결
+    const authURL = service.oauthLogin({ provider, userType })
+    res.redirect(authURL);
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ 'Server error': err });
+    next(err); // Error Handler가 오류를 처리하도록 위임
   }
 }
 
-function callback(req, res) {
-  const { provider } = req.params;
+async function callback(req, res) {
+  const { code, state, userType } = req.query;
+  console.log(`(네이버) 로그인 페이지에서 사용자가 로그인 후 받아온 정보. code: ${code} / state: ${state}`);
 
   try {
-    const user = service.callback({ provider });
-    res.status(200).json(user);
+    const user = await service.callback({ code, state });
+
+    if (user) {
+      user.userType = userType;
+      req.session.user = user;
+
+      return res.status(200).json(user);
+    }
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ 'Server error': err });
+    next(err);
   }
 }
 
@@ -45,7 +51,7 @@ async function login(req, res, next) {
       return res.status(200).json(user);
     }
   } catch (err) {
-    next(err); // Error Handler가 오류를 처리하도록 위임
+    next(err);
   }
 };
 
@@ -54,7 +60,6 @@ function logout(req, res) {
     service.logout({ session: req.session });
     res.status(200).json({ message: 'logged out' });
   } catch (err) {
-    // res.status(500).json({ 'Server error': err });
     next(err);
   }
 };
