@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 
 const count = parseInt(process.argv[2], 10);
 const password = process.argv[3] || 'password123';
-const saltRounds = 10;
+const saltRounds = 11;
 
 if (!count || count <= 0) {
   console.error('사용법: node generate-bcrypt.js <개수> [비밀번호]');
