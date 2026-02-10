@@ -25,7 +25,7 @@ function oauthLogin({ provider, userType }) {
   // 중복 코드를 제외하고 간결하게 만들기 위해서 try ~ catch 블록 제외
 
   if (provider === 'naver') {
-    return `${NAVER_AUTH_URL}?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${NAVER_AUTH_REDIRECT_URI}&state=login&userType=${userType}`;
+    return `${NAVER_AUTH_URL}?response_type=code&client_id=${NAVER_CLIENT_ID}&redirect_uri=${NAVER_AUTH_REDIRECT_URI}?userType=${userType}&state=login`;
   }
 }
 
