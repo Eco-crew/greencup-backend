@@ -30,9 +30,6 @@ function oauthLogin({ provider, userType }) {
 }
 
 async function callback({ code, state, userType }) {
-  // const user = repository.callback({ provider });
-  // return user;
-
   // 1. 네이버 로그인 페이지에서 사용자가 로그인 후 받아온 코드를 검증
   const tokenUrl = new URL(NAVER_TOKEN_URL);
   tokenUrl.search = new URLSearchParams({
@@ -46,7 +43,7 @@ async function callback({ code, state, userType }) {
   // 2. Callback URL 쿼리 파라미터를 통해서 받은 요청 정보를 조합해서 네이버에 Access Token 요청
   const token = await fetch(tokenUrl.toString());
   const tokenData = await token.json();
-  console.log('Naver에 사용자 코드를 가지고 Access Token를 요청해서 받은 정보', tokenData);
+  // console.log('Naver에 사용자 코드를 가지고 Access Token를 요청해서 받은 정보', tokenData);
 
 
   // 3. 네이버에서 코드 검증 후 발급해준 Access Token을 이용해서 사용자 정보 받아오기
@@ -64,11 +61,10 @@ async function callback({ code, state, userType }) {
   if (!oauthUserInfo) {
     throw new AppError('OAuth 사용자 정보 오류', 500);
   }
-  console.log('Access Token을 가지고 요청한 사용자 정보:', oauthUserInfo.response);
+  // console.log('Access Token을 가지고 요청한 사용자 정보:', oauthUserInfo.response);
 
   // 4. 네이버에서 받아온 사용자 정보로 우리 홈페이지 회원인지 조회 (로컬 로그인 > findUserByLoginId 함수를 이용하여 처리 (공용 함수))
   const user = await repository.findUserByLoginId({ username: oauthUserInfo.response.email, userType }) || {};
-  const { id, manager_email, manager_name } = user;
 
   return user;
 }
@@ -109,7 +105,7 @@ function checkLogin({ session }) {
   if (!session?.user) {
     throw new AuthError('로그인되어 있지 않습니다.');
   }
-  return true;
+  return session.user;
 }
 
 
