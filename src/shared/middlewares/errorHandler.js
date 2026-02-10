@@ -1,4 +1,4 @@
-const AuthError = require('../errors/AuthError');
+const AuthError = require('../../errors/AuthError');
 
 // 공통 에러 처리 핸들러(미들웨어)
 // ※ errorHandler Middleware로 등록해서 사용하려면 함수 시그니쳐가 반드시 (err, req, res, next)이어야 한다.
