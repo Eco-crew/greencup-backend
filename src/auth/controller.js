@@ -4,7 +4,7 @@ const service = require('./service');
 /**********************
  *  OAuth 기반 로그인  *
  **********************/
-function oauthLogin(req, res) {
+function oauthLogin(req, res, next) { // ※ errorHandler Middleware를 사용하려면 함수 시그니쳐에 next 매개변수 필수
   const { provider } = req.params;
   const { userType } = req.query;
 
@@ -17,7 +17,7 @@ function oauthLogin(req, res) {
   }
 }
 
-async function callback(req, res) {
+async function callback(req, res, next) {
   const { code, state, userType } = req.query;
   console.log(`(네이버) 로그인 페이지에서 사용자가 로그인 후 받아온 정보. code: ${code} / state: ${state}`);
 
@@ -55,7 +55,7 @@ async function login(req, res, next) {
   }
 };
 
-function logout(req, res) {
+function logout(req, res, next) {
   try {
     service.logout({ session: req.session });
     res.status(200).json({ message: 'logged out' });
@@ -76,14 +76,15 @@ function checkLogin(req, res, next) {
 }
 
 // My page
-async function profile(req, res) {
+async function profile(req, res, next) {
 
   try {
     const user = await service.profile();
     res.status(200).json(user);
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ 'Server error': err });
+    next(err);
+    // console.log(err);
+    // res.status(500).json({ 'Server error': err });
   }
 };
 
