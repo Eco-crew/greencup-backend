@@ -1,5 +1,11 @@
 // 엔티티별 요청(HTTP Request) 처리
+const path = require('path');
+require('dotenv').config({
+  path: path.resolve(__dirname, '../../.env'),
+  quiet: true
+});
 const service = require('./service');
+
 
 /**********************
  *  OAuth 기반 로그인  *
@@ -28,7 +34,10 @@ async function callback(req, res, next) {
       user.userType = userType;
       req.session.user = user;
 
-      return res.status(200).json(user);
+      const entityURI = userType === 'reuseOperator' ? 'reuse-operator' : 'partner';
+      res.status(302).redirect(`${process.env.REACT_SERVER_URL}/${entityURI}/requests`);
+
+      // return res.status(200).json(user);
     }
   } catch (err) {
     next(err);
