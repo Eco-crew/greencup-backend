@@ -1,6 +1,6 @@
 const path = require('path');
 const mysql = require('mysql2/promise');
-const dotenv = require('dotenv').config({
+require('dotenv').config({
   path: path.resolve(__dirname, '../../.env'),
   quiet: true
 });
