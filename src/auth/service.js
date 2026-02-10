@@ -53,7 +53,7 @@ async function callback({ code, state, userType }) {
   console.log('Naver에서 발급한 Access Token:', tokenData.access_token);
   const response = await fetch(NAVER_USERINFO_URL, {
     headers: {
-      Authorization: `Bearer ${tokenData.access_token}`
+      Authorization: `Bear                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      r ${tokenData.access_token}`
     }
   });
 
@@ -95,7 +95,7 @@ async function login({ username, password, userType }) {
   return { id, manager_email, manager_name };
 };
 
-function logout(session) {
+function logout({ session }) {
   if (!session?.user) {
     throw new AuthError('로그인되어 있지 않습니다.');
   }
@@ -105,7 +105,7 @@ function logout(session) {
 
 
 // 로그인 상태 확인
-function checkLogin(session) {
+function checkLogin({ session }) {
   if (!session?.user) {
     throw new AuthError('로그인되어 있지 않습니다.');
   }
