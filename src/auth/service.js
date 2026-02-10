@@ -53,7 +53,7 @@ async function callback({ code, state, userType }) {
   console.log('Naver에서 발급한 Access Token:', tokenData.access_token);
   const response = await fetch(NAVER_USERINFO_URL, {
     headers: {
-      Authorization: `Bear                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      r ${tokenData.access_token}`
+      Authorization: `Bearer ${tokenData.access_token}`
     }
   });
 
