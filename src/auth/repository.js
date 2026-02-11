@@ -53,4 +53,69 @@ async function profile({ username, password }) {
   }
 };
 
-module.exports = { findUserByLoginId, profile };
+//수거지점장- 업체목록 - 리스트- 페이지네이션
+async function reuseOperatorPartnerList(reuseOperatorId, page, pageRowSize, partnerName) {
+  const limitCount = pageRowSize;
+  const offsetCount = (page - 1) * limitCount;
+
+  let connection;
+
+  try {
+    connection = await db.getConnection();
+
+    let partnerNamequery = ``;
+    //업체이름을 검색 조건에 넣었으면 
+    if (partnerName) {
+      partnerNamequery = `AND p.site_name LIKE ? `;
+    }
+
+    const query = `
+      SELECT d.partner_id AS partner_id,
+      p.site_name AS site_name,
+      p.manager_name AS manager_name,
+      SUM(d.rented_cup_quantity)  AS rented_sum,
+      SUM(d.returned_cup_quantity) AS returned_sum,
+      SUM(d.lost_cup_quantity)    AS lost_sum 
+      FROM partners p 
+      JOIN greencup_branches g ON p.greencup_branch_id=g.id 
+      JOIN daily_rentals d ON d.partner_id = p.id 
+      WHERE g.id = ? 
+    ` + partnerNamequery
+      + `LIMIT ? OFFSET ? `;
+
+    const [partnerList] = await connection.execute(query, [reuseOperatorId, `%${partnerName}%`,limitCount, offsetCount]);
+    return partnerList;
+  } finally {
+    if (connection) connection.release();
+  }
+}
+
+//수거지점장- 업체목록 - 리스트- 전체개수
+async function reuseOperatorPartnerListCount(reuseOperatorId, partnerName) {
+  let connection;
+
+  try {
+    connection = await db.getConnection();
+
+    let partnerNamequery = ``;
+    //업체이름을 검색 조건에 넣었으면 
+    if (partnerName) {
+      partnerNamequery = `AND p.site_name LIKE ? `;
+    }
+
+    const query = `
+      SELECT COUNT(d.partner_id)  AS result_count
+      FROM partners p 
+      JOIN greencup_branches g ON p.greencup_branch_id=g.id 
+      JOIN daily_rentals d ON d.partner_id = p.id 
+      WHERE g.id = ? 
+    ` + partnerNamequery;
+
+    const [count] = await connection.execute(query, [reuseOperatorId, `%${partnerName}%`]);
+    return count[0] || null;
+  } finally {
+    if (connection) connection.release();
+  }
+}
+
+module.exports = { findUserByLoginId, profile, reuseOperatorPartnerList, reuseOperatorPartnerListCount };

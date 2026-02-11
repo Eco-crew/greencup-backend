@@ -85,7 +85,6 @@ function checkLogin(req, res, next) {
 
 // My page
 async function profile(req, res, next) {
-
   try {
     const user = await service.profile();
     res.json(user);
@@ -95,5 +94,21 @@ async function profile(req, res, next) {
     // res.status(500).json({ 'Server error': err });
   }
 };
+
+//수거지점장- 업체목록 - 리스트
+function reuseOperatorPartnerList (req, res, next){
+  const {partnerName, page, pageRowSize} = req.query;
+
+  //로그인한 당사자인 수거지점장의 uuid를 가져옴
+  const reuseOperatorId = req.session.user.id;
+
+  try{
+    const reusePartnerList = service.reuseOperatorPartnerList(reuseOperatorId, page, pageRowSize , partnerName);
+    res.json({partners:reusePartnerList});
+  } catch(err){
+    next(err);
+  }
+
+}
 
 module.exports = { oauthLogin, callback, login, logout, checkLogin, profile };
