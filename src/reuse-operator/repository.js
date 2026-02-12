@@ -1,7 +1,6 @@
 // DB Connection Pool에서 가용 커넥션을 받아온다 (없으면 큐에서 요청 대기)
-const connection = require('../db/connection').getConnection();
-
-
+//const connection = require('../db/connection').getConnection();
+const db = require('../db/connection');
 
 
 
@@ -156,7 +155,7 @@ async function reuseOperatorPartnerListCount(reuseOperatorId, partnerName) {
   }
 }
 
-//수거지점장- 업체관리 - 상세페이지- dailyrentals와 partners 조인
+//수거지점장- 업체관리 - 상세페이지- dailyrentals와 partners 조인 - 업체정보와 업체 대여 정보
 async function reuseOperatorPartnerDetailWithDaily(partnerId) {
   let connection;
 
@@ -168,8 +167,8 @@ async function reuseOperatorPartnerDetailWithDaily(partnerId) {
       p.site_name AS site_name,
       p.manager_name AS manager_name,
       p.manager_phone_number AS manager_phone_number,
-      p.open_time AS open_time,
-      p.close_time AS close_time,
+      DATE_FORMAT(p.open_time,'%H:%i') AS open_time,
+      DATE_FORMAT(p.close_time,'%H:%i') AS close_time,
       p.site_address AS site_address,
       p.closed_days AS closed_days,
       SUM(d.rented_cup_quantity)  AS rented_sum,
@@ -187,7 +186,7 @@ async function reuseOperatorPartnerDetailWithDaily(partnerId) {
   }
 }
 
-//수거지점장- 업체관리 - 상세페이지- contracts
+//수거지점장- 업체관리 - 상세페이지- contracts - 기본대여정보
 async function reuseOperatorPartnerDetailWithContracts(partnerId) {
   let connection;
 
@@ -196,15 +195,11 @@ async function reuseOperatorPartnerDetailWithContracts(partnerId) {
 
     const query = `
       SELECT daily_cup_quantity,
-      deliver_by_time,
-      contract_start_date
-      note,
-      p.open_time AS open_time,
-      p.close_time AS close_time,
-      p.site_address AS site_address,
-      p.closed_days AS closed_days,
-      FROM partners p 
-      WHERE p.id = ?
+      DATE_FORMAT(deliver_by_time,'%H:%i') AS deliver_by_time,
+      DATE_FORMAT(contract_start_date,'%Y-%m-%d') AS contract_start_date,
+      note
+      FROM contracts
+      WHERE partner_id = ?
     ` ;
 
     const [partner] = await connection.query(query, [partnerId]);
@@ -214,4 +209,24 @@ async function reuseOperatorPartnerDetailWithContracts(partnerId) {
   }
 }
 
-module.exports = { reuseOperatorPartnerList, reuseOperatorPartnerListCount };
+//수거지점장- 업체관리 - 상세페이지- special_closed_dates - 비정기휴무 데이터 받기 
+async function reuseOperatorPartnerDetailWithSpecialClosed(partnerId) {
+  let connection;
+
+  try {
+    connection = await db.getConnection();
+
+    const query = `
+      SELECT DATE_FORMAT(closed_date,'%Y-%m-%d') AS closed_date
+      FROM special_closed_dates
+      WHERE partner_id = ?
+    ` ;
+
+    const [closedDates] = await connection.query(query, [partnerId]);
+    return closedDates || null;
+  } finally {
+    if (connection) connection.release();
+  }
+}
+
+module.exports = { reuseOperatorPartnerList, reuseOperatorPartnerListCount, reuseOperatorPartnerDetailWithDaily, reuseOperatorPartnerDetailWithContracts, reuseOperatorPartnerDetailWithSpecialClosed };

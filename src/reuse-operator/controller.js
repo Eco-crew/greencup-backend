@@ -66,8 +66,8 @@ async function reuseOperatorPartnerDetail (req, res, next){
   const {partnerId} = req.params;
 
   try{
-    const reusePartner = await service.reuseOperatorPartnerDetail(partnerId);
-    res.json(reusePartner);
+    const reusePartnerObject = await service.reuseOperatorPartnerDetail(partnerId);
+    res.json(reusePartnerObject);
   } catch(err){
     next(err);
   }
