@@ -9,7 +9,10 @@ function getRequests(req, res) {
   }
 }
 
-
+// router.get('/requests/:requestId', authMiddleware.checkLogin, controller.getRequestDetail);
+// router.put('/requests/:requestId/complete', authMiddleware.checkLogin, controller.updateRequest);
+// router.put('/requests/:requestId/uncomplete', authMiddleware.checkLogin, controller.updateRequest);
+// router.put('/requests/:requestId/broken-lost', authMiddleware.checkLogin, controller.updateRequest);
 
 
 
@@ -46,29 +49,29 @@ function getRequests(req, res) {
 */
 
 //수거지점장- 업체관리 - 리스트
-async function reuseOperatorPartnerList (req, res, next){
-  const {partnerName, page, pageRowSize} = req.query;
+async function reuseOperatorPartnerList(req, res, next) {
+  const { partnerName, page, pageRowSize } = req.query;
 
   //로그인한 당사자인 수거지점장의 uuid를 가져옴
   const reuseOperatorId = req.session.user.id;
 
-  try{
-    const reusePartnerList = await service.reuseOperatorPartnerList(reuseOperatorId, Number(page), Number(pageRowSize) , partnerName);
+  try {
+    const reusePartnerList = await service.reuseOperatorPartnerList(reuseOperatorId, Number(page), Number(pageRowSize), partnerName);
     res.json(reusePartnerList);
-  } catch(err){
+  } catch (err) {
     next(err);
   }
 
 }
 
 //수거지점장- 업체관리 - 업체 상세
-async function reuseOperatorPartnerDetail (req, res, next){
-  const {partnerId} = req.params;
+async function reuseOperatorPartnerDetail(req, res, next) {
+  const { partnerId } = req.params;
 
-  try{
+  try {
     const reusePartnerObject = await service.reuseOperatorPartnerDetail(partnerId);
     res.json(reusePartnerObject);
-  } catch(err){
+  } catch (err) {
     next(err);
   }
 
