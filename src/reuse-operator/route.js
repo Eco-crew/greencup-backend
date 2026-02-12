@@ -22,6 +22,26 @@ const authMiddleware = require('../shared/middlewares/auth');
 
 
 
+/**
+ *  수거지점장- 업체관리 영역
+*/
+
+router.get('/partners', authMiddleware.checkLogin, controller.reuseOperatorPartnerList);
+router.get('/partners/:partnerId', authMiddleware.checkLogin, controller.reuseOperatorPartnerDetail);
+module.exports = router;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

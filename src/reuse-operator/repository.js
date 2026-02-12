@@ -188,6 +188,30 @@ async function reuseOperatorPartnerDetailWithDaily(partnerId) {
 }
 
 //수거지점장- 업체관리 - 상세페이지- contracts
+async function reuseOperatorPartnerDetailWithContracts(partnerId) {
+  let connection;
 
+  try {
+    connection = await db.getConnection();
+
+    const query = `
+      SELECT daily_cup_quantity,
+      deliver_by_time,
+      contract_start_date
+      note,
+      p.open_time AS open_time,
+      p.close_time AS close_time,
+      p.site_address AS site_address,
+      p.closed_days AS closed_days,
+      FROM partners p 
+      WHERE p.id = ?
+    ` ;
+
+    const [partner] = await connection.query(query, [partnerId]);
+    return partner[0] || null;
+  } finally {
+    if (connection) connection.release();
+  }
+}
 
 module.exports = { reuseOperatorPartnerList, reuseOperatorPartnerListCount };
