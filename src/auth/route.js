@@ -15,10 +15,9 @@ router.post('/api/auth/logout', controller.logout);
 router.get('/api/auth/check-login', controller.checkLogin);
 
 // My page
+//정확히 /api/auth/me로 
 router.get('/api/me', authMiddleware.checkLogin, controller.profile);
 
 
-//수거지점장- 업체목록 - 리스트
-router.get('/api/reuse-operator/partners', controller.reuseOperatorPartnerList);
 
 module.exports = router;

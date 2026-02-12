@@ -24,8 +24,8 @@ app.use(session({
 app.use(morgan('dev'));
 
 // Middleware - Routing
-app.use('/', authRoute);
-// app.use('/', reuseOperatorRoute);
+app.use('/api/auth', authRoute);
+app.use('/api/reuse-operator', reuseOperatorRoute);
 // app.use('/', partnerRoute);
 
 // Middleware - Error Handler (※ 모든 라우터 등록 후 마지막에 등록해야 함!)
