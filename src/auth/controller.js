@@ -96,19 +96,19 @@ async function profile(req, res, next) {
 };
 
 //수거지점장- 업체목록 - 리스트
-function reuseOperatorPartnerList (req, res, next){
+async function reuseOperatorPartnerList (req, res, next){
   const {partnerName, page, pageRowSize} = req.query;
 
   //로그인한 당사자인 수거지점장의 uuid를 가져옴
   const reuseOperatorId = req.session.user.id;
 
   try{
-    const reusePartnerList = service.reuseOperatorPartnerList(reuseOperatorId, page, pageRowSize , partnerName);
-    res.json({partners:reusePartnerList});
+    const reusePartnerList = await service.reuseOperatorPartnerList(reuseOperatorId, Number(page), Number(pageRowSize) , partnerName);
+    res.json(reusePartnerList);
   } catch(err){
     next(err);
   }
 
 }
 
-module.exports = { oauthLogin, callback, login, logout, checkLogin, profile };
+module.exports = { oauthLogin, callback, login, logout, checkLogin, profile, reuseOperatorPartnerList };

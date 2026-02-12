@@ -19,6 +19,6 @@ router.get('/api/me', authMiddleware.checkLogin, controller.profile);
 
 
 //수거지점장- 업체목록 - 리스트
-router.get('/api/reuse-operator/partners', authMiddleware.checkLogin, controller.reuseOperatorPartnerList);
+router.get('/api/reuse-operator/partners', controller.reuseOperatorPartnerList);
 
 module.exports = router;

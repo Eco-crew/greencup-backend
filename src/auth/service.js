@@ -117,7 +117,8 @@ async function profile({ username, password }) {
 
 //수거지점장- 업체목록 - 리스트
 async function reuseOperatorPartnerList(reuseOperatorId, page, pageRowSize, partnerName) {
-  const partnerList = await repository.reuseOperatorPartnerList();
+  //수거지점장- 업체목록 - 리스트- 페이지네이션 데이터를 받아온다
+  const partnerList = await repository.reuseOperatorPartnerList(reuseOperatorId, page, pageRowSize, partnerName);
 
   //배열을 돌며 키이름을 프론트에서 데이터를 받는 형태로 바꿔준다.
   let changeNamePartnerList = [];
@@ -167,7 +168,9 @@ async function reuseOperatorPartnerList(reuseOperatorId, page, pageRowSize, part
     resultPartnerList.push(changeNamePartnerObject);
   });
 
-  return resultPartnerList;
+  //수거지점장- 업체목록 - 리스트- 전체개수 데이터를 받아온다
+  let partnerCount = await repository.reuseOperatorPartnerListCount(reuseOperatorId, partnerName)
+  return {partners:resultPartnerList, searchPartnerCount : partnerCount};
 }
 
 module.exports = { oauthLogin, callback, login, logout, checkLogin, profile, reuseOperatorPartnerList };

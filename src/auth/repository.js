@@ -64,11 +64,14 @@ async function reuseOperatorPartnerList(reuseOperatorId, page, pageRowSize, part
     connection = await db.getConnection();
 
     let partnerNamequery = ``;
+    const changedPartnerName = (partnerName ?? "").trim();
     //업체이름을 검색 조건에 넣었으면 
-    if (partnerName) {
+    if (changedPartnerName) {
       partnerNamequery = `AND p.site_name LIKE ? `;
     }
 
+    //execute() → 서버 prepared statement → LIMIT 파라미터가 DB 버전에 따라 문제 가능
+    //query() → 클라이언트 치환 후 전송 → LIMIT 항상 안정
     const query = `
       SELECT d.partner_id AS partner_id,
       p.site_name AS site_name,
@@ -81,10 +84,28 @@ async function reuseOperatorPartnerList(reuseOperatorId, page, pageRowSize, part
       JOIN daily_rentals d ON d.partner_id = p.id 
       WHERE g.id = ? 
     ` + partnerNamequery
-      + `LIMIT ? OFFSET ? `;
+      + `GROUP BY d.partner_id LIMIT ? OFFSET ? `;
 
-    const [partnerList] = await connection.execute(query, [reuseOperatorId, `%${partnerName}%`,limitCount, offsetCount]);
-    return partnerList;
+
+    let result;
+    //업체이름을 검색 조건에 넣었으면 
+    if (changedPartnerName) {
+      console.log("LIST PARAMS", [reuseOperatorId, `%${changedPartnerName}%`, limitCount, offsetCount]);
+      console.log(query);
+      console.log(typeof limitCount, limitCount);
+      console.log(typeof offsetCount, offsetCount);
+      const [partnerList] = await connection.query(query, [reuseOperatorId, `%${changedPartnerName}%`, limitCount, offsetCount]);
+      result = partnerList;
+    } else {
+      console.log("LIST PARAMS", [reuseOperatorId, limitCount, offsetCount]);
+      console.log(query);
+      console.log(typeof limitCount, limitCount);
+      console.log(typeof offsetCount, offsetCount);
+      const [partnerList] = await connection.query(query, [reuseOperatorId, limitCount, offsetCount]);
+      result = partnerList;
+    }
+
+    return result;
   } finally {
     if (connection) connection.release();
   }
@@ -98,21 +119,31 @@ async function reuseOperatorPartnerListCount(reuseOperatorId, partnerName) {
     connection = await db.getConnection();
 
     let partnerNamequery = ``;
+    const changedPartnerName = (partnerName ?? "").trim();
     //업체이름을 검색 조건에 넣었으면 
-    if (partnerName) {
+    if (changedPartnerName) {
       partnerNamequery = `AND p.site_name LIKE ? `;
     }
 
     const query = `
-      SELECT COUNT(d.partner_id)  AS result_count
+      SELECT COUNT(DISTINCT d.partner_id) AS result_count
       FROM partners p 
       JOIN greencup_branches g ON p.greencup_branch_id=g.id 
       JOIN daily_rentals d ON d.partner_id = p.id 
       WHERE g.id = ? 
     ` + partnerNamequery;
 
-    const [count] = await connection.execute(query, [reuseOperatorId, `%${partnerName}%`]);
-    return count[0] || null;
+    let result;
+    //업체이름을 검색 조건에 넣었으면 
+    if (changedPartnerName) {
+      const [count] = await connection.query(query, [reuseOperatorId, `%${changedPartnerName}%`]);
+      result = count[0] || null;
+    } else {
+      const [count] = await connection.query(query, [reuseOperatorId]);
+      result = count[0]["result_count"] || null;
+    }
+
+    return result;
   } finally {
     if (connection) connection.release();
   }
