@@ -137,7 +137,7 @@ async function reuseOperatorPartnerListCount(reuseOperatorId, partnerName) {
     //업체이름을 검색 조건에 넣었으면 
     if (changedPartnerName) {
       const [count] = await connection.query(query, [reuseOperatorId, `%${changedPartnerName}%`]);
-      result = count[0] || null;
+      result = count[0]["result_count"] || null;
     } else {
       const [count] = await connection.query(query, [reuseOperatorId]);
       result = count[0]["result_count"] || null;
