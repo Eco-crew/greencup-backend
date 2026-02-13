@@ -271,14 +271,14 @@ async function reuseOperatorPartnerStats(reuseOperatorId, startDate, endDate) {
     for (const [key, value] of Object.entries(periodTotalLoanType)) {
       switch (key) {
         case "rented_cup_quantity":
-          changeNamePeriodTotalLoanTypeObject.periodTotalLoanTypePercent = value;
-          periodTotalLoanCount += value;
+          changeNamePeriodTotalLoanTypeObject.periodTotalLoanTypePercent = parseInt(value);
+          periodTotalLoanCount += parseInt(value);
           break;
         case "returned_cup_quantity":
-          periodTotalReturnCount += value;
+          periodTotalReturnCount += parseInt(value);
           break;
         case "lost_cup_quantity":
-          periodTotalBrokenLostCount += value;
+          periodTotalBrokenLostCount += parseInt(value);
           break;
         case "business_type":
           changeNamePeriodTotalLoanTypeObject.periodTotalLoanTypeName = value;
