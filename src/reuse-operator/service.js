@@ -9,6 +9,7 @@ const AuthError = require('../errors/AuthError');
 const AppError = require('../errors/AppError');
 
 
+const addOneDay = require('../shared/utils/addOneDay');
 
 
 
@@ -239,6 +240,9 @@ async function reuseOperatorPartnerDetail(partnerId) {
 
 //수거지점장 - 통계
 async function reuseOperatorPartnerStats(reuseOperatorId, startDate, endDate) {
+  //쿼리 조회를 위해 endDate에 하루를 더해야한다
+  let queryEndDate = addOneDay(endDate);
+  
   //수거지점장-통계- 수거지점의 현재개수 조회
   let currentTotal = await repository.reuseOperatorPartnerStatsCurrentTotal(reuseOperatorId);
 
@@ -272,7 +276,7 @@ async function reuseOperatorPartnerStats(reuseOperatorId, startDate, endDate) {
   let periodTotalBrokenLostCount = 0;
 
   //조회기간동안 빌려간 제휴 업체 종류(ex cafe)  배열
-  let periodTotalLoanTypes = await repository.reuseOperatorPartnerStatsPeriodTotal(reuseOperatorId, startDate, endDate);
+  let periodTotalLoanTypes = await repository.reuseOperatorPartnerStatsPeriodTotal(reuseOperatorId, startDate, queryEndDate);
 
   let changeNamePeriodTotalLoanTypeObjectList = [];
   periodTotalLoanTypes.forEach((periodTotalLoanType) => {

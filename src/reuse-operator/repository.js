@@ -251,7 +251,7 @@ async function reuseOperatorPartnerStatsCurrentTotal(reuseOperatorId) {
 }
 
 //수거지점-통계- 업체지점들의 기간별 대여개수
-async function reuseOperatorPartnerStatsPeriodTotal(reuseOperatorId, startDate, endDate) {
+async function reuseOperatorPartnerStatsPeriodTotal(reuseOperatorId, startDate, queryEndDate) {
   let connection;
 
   try {
@@ -264,13 +264,13 @@ async function reuseOperatorPartnerStatsPeriodTotal(reuseOperatorId, startDate, 
       SELECT SUM(d.rented_cup_quantity) AS rented_cup_quantity , SUM(d.returned_cup_quantity) AS returned_cup_quantity , SUM(d.lost_cup_quantity) AS lost_cup_quantity, p.business_type AS business_type
       FROM daily_rentals d
       JOIN partners p ON d.partner_id =  p.id
-      WHERE d.rental_date >= ? AND d.rental_date <= ?
+      WHERE d.rental_date >= ? AND d.rental_date < ?
       AND d.status = 'complete'
       AND d.greencup_branch_id = ?
       GROUP BY p.business_type;
     ` ;
 
-    const [periodTotal] = await connection.query(query, [startDate, endDate, reuseOperatorId]);
+    const [periodTotal] = await connection.query(query, [startDate, queryEndDate, reuseOperatorId]);
     return periodTotal || null;
   } finally {
     if (connection) connection.release();
