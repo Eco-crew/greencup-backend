@@ -242,6 +242,7 @@ async function reuseOperatorPartnerDetail(partnerId) {
 async function reuseOperatorPartnerStats(reuseOperatorId, startDate, endDate) {
   //쿼리 조회를 위해 endDate에 하루를 더해야한다
   let queryEndDate = addOneDay(endDate);
+  console.log(queryEndDate);
   
   //수거지점장-통계- 수거지점의 현재개수 조회
   let currentTotal = await repository.reuseOperatorPartnerStatsCurrentTotal(reuseOperatorId);
