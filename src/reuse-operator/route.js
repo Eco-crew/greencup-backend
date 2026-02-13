@@ -28,6 +28,7 @@ const authMiddleware = require('../shared/middlewares/auth');
 
 router.get('/partners', authMiddleware.checkLogin, controller.reuseOperatorPartnerList);
 router.get('/partners/:partnerId', authMiddleware.checkLogin, controller.reuseOperatorPartnerDetail);
+router.get('/stats', authMiddleware.checkLogin, controller.reuseOperatorPartnerStats);
 module.exports = router;
 
 
