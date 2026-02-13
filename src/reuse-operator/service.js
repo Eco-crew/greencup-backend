@@ -1,47 +1,33 @@
 // Business Logic
-const path = require('path');
-const dotenv = require('dotenv').config({
-  path: path.resolve(__dirname, '../../.env'),
-  quiet: true
-});
 const repository = require('./repository');
-const AuthError = require('../errors/AuthError');
 const AppError = require('../errors/AppError');
 
 
+/****************************************************************************************************
+ *  수거지점장 - (대여) 요청 현황                                                                     *
+ ****************************************************************************************************/
+async function getRequests({ }) {
+  const requests = await repository.getRequests({});
+
+  return requests;
+}
+
+async function getRequest({ }) {
+  const request = await repository.getRequest({});
+
+  return request;
+}
+
+async function updateRequest({ }) {
+  const request = await repository.updateRequest({});
+
+  return request;
+}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/**
- *  수거지점장- 업체관리 영역
-*/
+/****************************************************************************************************
+ *  수거지점장 - 업체관리                                                                             *
+ ****************************************************************************************************/
 
 //수거지점장- 업체관리 - 리스트
 async function reuseOperatorPartnerList(reuseOperatorId, page, pageRowSize, partnerName) {
@@ -103,139 +89,145 @@ async function reuseOperatorPartnerList(reuseOperatorId, page, pageRowSize, part
 
 //수거지점장 - 업체관리 - 업체상세
 async function reuseOperatorPartnerDetail(partnerId) {
-    //수거지점장- 업체관리- 업체정보와 업체 대여 정보를 받아온다
-    let partner = await repository.reuseOperatorPartnerDetailWithDaily(partnerId);
+  //수거지점장- 업체관리- 업체정보와 업체 대여 정보를 받아온다
+  let partner = await repository.reuseOperatorPartnerDetailWithDaily(partnerId);
 
-    let changeNamePartnerObject = {};
-    for (const [key, value] of Object.entries(partner)) {
-      switch (key) {
-        case "partner_id":
-          changeNamePartnerObject.partnerId = value;
-          break;
-        case "site_name":
-          changeNamePartnerObject.partnerName = value;
-          break;
-        case "manager_name":
-          changeNamePartnerObject.partnerManagerName = value;
-          break;
-        case "manager_phone_number":
-          changeNamePartnerObject.partnerManagerPhone = value;
-          break;   
-        case "open_time":
-          changeNamePartnerObject.partnerOperatingStart = value;
-          break;    
-          case "close_time":
-          changeNamePartnerObject.partnerOperatingEnd = value;
-          break;   
-          case "site_address":
-          changeNamePartnerObject.partnerAddress = value;
-          break; 
-          case "closed_days":
-          changeNamePartnerObject.weeklyOffDays = value;
-          break;       
-        case "rented_sum":
-          changeNamePartnerObject.totalLoanCount = value;
-          break;
-        case "returned_sum":
-          changeNamePartnerObject.totalReturnCount = value;
-          break;
-        case "lost_sum":
-          changeNamePartnerObject.totalBrokenLostCount = value;
-          break;
-        default:
-          break;
+  let changeNamePartnerObject = {};
+  for (const [key, value] of Object.entries(partner)) {
+    switch (key) {
+      case "partner_id":
+        changeNamePartnerObject.partnerId = value;
+        break;
+      case "site_name":
+        changeNamePartnerObject.partnerName = value;
+        break;
+      case "manager_name":
+        changeNamePartnerObject.partnerManagerName = value;
+        break;
+      case "manager_phone_number":
+        changeNamePartnerObject.partnerManagerPhone = value;
+        break;
+      case "open_time":
+        changeNamePartnerObject.partnerOperatingStart = value;
+        break;
+      case "close_time":
+        changeNamePartnerObject.partnerOperatingEnd = value;
+        break;
+      case "site_address":
+        changeNamePartnerObject.partnerAddress = value;
+        break;
+      case "closed_days":
+        changeNamePartnerObject.weeklyOffDays = value;
+        break;
+      case "rented_sum":
+        changeNamePartnerObject.totalLoanCount = value;
+        break;
+      case "returned_sum":
+        changeNamePartnerObject.totalReturnCount = value;
+        break;
+      case "lost_sum":
+        changeNamePartnerObject.totalBrokenLostCount = value;
+        break;
+      default:
+        break;
 
-      }
     }
+  }
 
-    //쉬는날 숫자를 7자리 이진수로 바꾼다
-    //바꾼 이진수를 한글자씩 분리하여 배열을 만든다
-    //1이면 요일로 바꾼다
-    const binary = changeNamePartnerObject.weeklyOffDays.toString(2).padStart(7,"0");
-    const binarySplit = binary.split("");
-    let weeklyOffDaysList = [];
-    binarySplit.forEach((value, index) => {
-        switch(index){
-            case 0:
-                if (value == 1){
-                    weeklyOffDaysList.push("Mon");
-                }
-            break;   
-            case 1:
-                if (value == 1){
-                    weeklyOffDaysList.push("Tue");
-                }
-            break; 
-            case 2:
-                if (value == 1){
-                    weeklyOffDaysList.push("Wed");
-                }
-            break; 
-            case 3:
-                if (value == 1){
-                    weeklyOffDaysList.push("Thu");
-                }
-            break; 
-            case 4:
-                if (value == 1){
-                    weeklyOffDaysList.push("Fri");
-                }
-            break; 
-            case 5:
-                if (value == 1){
-                    weeklyOffDaysList.push("Sat");
-                }
-            break; 
-            case 6:
-                if (value == 1){
-                    weeklyOffDaysList.push("Sun");
-                }
-            break; 
+  //쉬는날 숫자를 7자리 이진수로 바꾼다
+  //바꾼 이진수를 한글자씩 분리하여 배열을 만든다
+  //1이면 요일로 바꾼다
+  const binary = changeNamePartnerObject.weeklyOffDays.toString(2).padStart(7, "0");
+  const binarySplit = binary.split("");
+  let weeklyOffDaysList = [];
+  binarySplit.forEach((value, index) => {
+    switch (index) {
+      case 0:
+        if (value == 1) {
+          weeklyOffDaysList.push("Mon");
         }
-    });
-
-    const currentLoanCount = changeNamePartnerObject.totalLoanCount - changeNamePartnerObject.totalReturnCount - changeNamePartnerObject.totalBrokenLostCount;
-    changeNamePartnerObject.currentLoanCount = currentLoanCount;
-
-    //정기휴무는 따로 보낼꺼니 이 객체에서 키를 제거
-    const { weeklyOffDays, ...rest } = changeNamePartnerObject;
-    changeNamePartnerObject = rest;
-
-    //수거지점장- 업체관리 - 상세페이지- contracts - 기본대여정보를 받아오기
-    let partnerSetting = await repository.reuseOperatorPartnerDetailWithContracts(partnerId);
-    let changeNamePartnerSettingObject = {};
-    for (const [key, value] of Object.entries(partnerSetting)) {
-      switch (key) {
-        case "daily_cup_quantity":
-          changeNamePartnerSettingObject.defaultNeedCount = value;
-          changeNamePartnerSettingObject.defaultReturnCount  = value;
-          break;
-        case "deliver_by_time":
-          changeNamePartnerSettingObject.defaultVisitTime = value;
-          break;
-        case "contract_start_date":
-          changeNamePartnerSettingObject.contractDate = value;
-          break;
-        case "note":
-          changeNamePartnerSettingObject.memo = value;
-          break;   
-        default:
-          break;
-
-      }
+        break;
+      case 1:
+        if (value == 1) {
+          weeklyOffDaysList.push("Tue");
+        }
+        break;
+      case 2:
+        if (value == 1) {
+          weeklyOffDaysList.push("Wed");
+        }
+        break;
+      case 3:
+        if (value == 1) {
+          weeklyOffDaysList.push("Thu");
+        }
+        break;
+      case 4:
+        if (value == 1) {
+          weeklyOffDaysList.push("Fri");
+        }
+        break;
+      case 5:
+        if (value == 1) {
+          weeklyOffDaysList.push("Sat");
+        }
+        break;
+      case 6:
+        if (value == 1) {
+          weeklyOffDaysList.push("Sun");
+        }
+        break;
     }
+  });
 
-    //수거지점장- 업체관리 - 상세페이지- contracts - 비정기휴무 데이터 받기
-    const closedDates = await repository.reuseOperatorPartnerDetailWithSpecialClosed(partnerId);
-    let changeNameClosedDates = [];
-    //console.log(closedDates);
-    closedDates.forEach((date) => {
-      changeNameClosedDates.push(date.closed_date);
-    });
+  const currentLoanCount = changeNamePartnerObject.totalLoanCount - changeNamePartnerObject.totalReturnCount - changeNamePartnerObject.totalBrokenLostCount;
+  changeNamePartnerObject.currentLoanCount = currentLoanCount;
 
-    console.log(changeNamePartnerObject);
-    return {partner:changeNamePartnerObject, settingInfo:changeNamePartnerSettingObject, weeklyOffDays:weeklyOffDaysList, offDates:changeNameClosedDates}
+  //정기휴무는 따로 보낼꺼니 이 객체에서 키를 제거
+  const { weeklyOffDays, ...rest } = changeNamePartnerObject;
+  changeNamePartnerObject = rest;
+
+  //수거지점장- 업체관리 - 상세페이지- contracts - 기본대여정보를 받아오기
+  let partnerSetting = await repository.reuseOperatorPartnerDetailWithContracts(partnerId);
+  let changeNamePartnerSettingObject = {};
+  for (const [key, value] of Object.entries(partnerSetting)) {
+    switch (key) {
+      case "daily_cup_quantity":
+        changeNamePartnerSettingObject.defaultNeedCount = value;
+        changeNamePartnerSettingObject.defaultReturnCount = value;
+        break;
+      case "deliver_by_time":
+        changeNamePartnerSettingObject.defaultVisitTime = value;
+        break;
+      case "contract_start_date":
+        changeNamePartnerSettingObject.contractDate = value;
+        break;
+      case "note":
+        changeNamePartnerSettingObject.memo = value;
+        break;
+      default:
+        break;
+
+    }
+  }
+
+  //수거지점장- 업체관리 - 상세페이지- contracts - 비정기휴무 데이터 받기
+  const closedDates = await repository.reuseOperatorPartnerDetailWithSpecialClosed(partnerId);
+  let changeNameClosedDates = [];
+  //console.log(closedDates);
+  closedDates.forEach((date) => {
+    changeNameClosedDates.push(date.closed_date);
+  });
+
+  console.log(changeNamePartnerObject);
+  return { partner: changeNamePartnerObject, settingInfo: changeNamePartnerSettingObject, weeklyOffDays: weeklyOffDaysList, offDates: changeNameClosedDates }
 }
 
 
-module.exports = {reuseOperatorPartnerList, reuseOperatorPartnerDetail };
+module.exports = {
+  getRequests,
+  getRequest,
+  updateRequest,
+  reuseOperatorPartnerList,
+  reuseOperatorPartnerDetail
+};

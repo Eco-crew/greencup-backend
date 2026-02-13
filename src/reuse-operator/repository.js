@@ -3,61 +3,61 @@
 const db = require('../db/connection');
 
 
+/****************************************************************************************************
+ *  수거지점장 - (대여) 요청 현황                                                                     *
+ ****************************************************************************************************/
+async function getRequests({ }) {
+  let connection;
+
+  try {
+    connection = await db.getConnection();
+    const query = `
+    `;
+
+    const result = await connection.execute(query, []);
+    return result || null;
+
+  } finally { // 오류 발생시에도 실행 보장
+    if (connection) connection.release(); // connection 리소스 사용 직후 반환
+  }
+}
+
+async function getRequest(req, res) {
+  let connection;
+
+  try {
+    connection = await db.getConnection();
+    const query = `
+    `;
+
+    const result = await connection.execute(query, []);
+    return result || null;
+
+  } finally {
+    if (connection) connection.release();
+  }
+}
+
+async function updateRequest(req, res) {
+  let connection;
+
+  try {
+    connection = await db.getConnection();
+    const query = `
+    `;
+
+    const result = await connection.execute(query, []);
+    return result || null;
+
+  } finally {
+    if (connection) connection.release();
+  }
+}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/**
- *  수거지점장- 업체관리 영역
-*/
+/****************************************************************************************************
+ *  수거지점장 - 업체관리                                                                             *
+ ****************************************************************************************************/
 
 //수거지점장- 업체목록 - 리스트- 페이지네이션
 async function reuseOperatorPartnerList(reuseOperatorId, page, pageRowSize, partnerName) {
@@ -229,4 +229,14 @@ async function reuseOperatorPartnerDetailWithSpecialClosed(partnerId) {
   }
 }
 
-module.exports = { reuseOperatorPartnerList, reuseOperatorPartnerListCount, reuseOperatorPartnerDetailWithDaily, reuseOperatorPartnerDetailWithContracts, reuseOperatorPartnerDetailWithSpecialClosed };
+
+module.exports = {
+  getRequests,
+  getRequest,
+  updateRequest,
+  reuseOperatorPartnerList,
+  reuseOperatorPartnerListCount,
+  reuseOperatorPartnerDetailWithDaily,
+  reuseOperatorPartnerDetailWithContracts,
+  reuseOperatorPartnerDetailWithSpecialClosed
+};
