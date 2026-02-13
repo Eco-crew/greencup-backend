@@ -107,7 +107,7 @@ CREATE TABLE daily_rentals (
   deliver_by_time TIME NOT NULL,
   greencup_branch_id CHAR(36) NOT NULL COLLATE utf8mb4_bin, -- UUID
   partner_id CHAR(36) NOT NULL COLLATE utf8mb4_bin, -- UUID
-  status ENUM('complete', 'incomplete', 'cancelled') NOT NULL Default 'incomplete',
+  status ENUM('incomplete', 'complete', 'cancelled') NOT NULL Default 'incomplete', -- 미완료 상태인 요청이 더 위에 정렬되도록 변경 (우선순위 ↑)
   note VARCHAR(128), -- 비고
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

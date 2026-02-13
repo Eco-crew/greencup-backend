@@ -6,14 +6,23 @@ const AppError = require('../errors/AppError');
 /****************************************************************************************************
  *  수거지점장 - (대여) 요청 현황                                                                     *
  ****************************************************************************************************/
-async function getRequests({ }) {
-  const requests = await repository.getRequests({});
+async function getRequests({ startDate, endDate, status = null, pageRowSize, page }) {
+  // incomplete 조건절이 위에 와야 한다. ※ complete을 위에 두면 incomplete도 그 조건절을 타게 되므로 주의!
+  // if (path.includes('incomplete')) {
+  // } else if (path.includes('complete')) {
+  // }
+
+  const requests = await repository.getRequests({ startDate, endDate, status, pageRowSize, page });
+
+  if (!requests) {
+    throw new AppError('쿼리 결과가 없습니다.');
+  }
 
   return requests;
 }
 
-async function getRequest({ }) {
-  const request = await repository.getRequest({});
+async function getRequestDetail({ }) {
+  const request = await repository.getRequestDetail({});
 
   return request;
 }
@@ -226,7 +235,7 @@ async function reuseOperatorPartnerDetail(partnerId) {
 
 module.exports = {
   getRequests,
-  getRequest,
+  getRequestDetail,
   updateRequest,
   reuseOperatorPartnerList,
   reuseOperatorPartnerDetail

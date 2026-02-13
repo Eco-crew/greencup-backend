@@ -6,16 +6,18 @@ const service = require('./service');
  ****************************************************************************************************/
 async function getRequests(req, res) {
   try {
-    const requests = await service.getRequests();
-
+    const searchCondition = req.query;
+    const requests = await service.getRequests(searchCondition);
+    res.json(requests);
   } catch (err) {
     next(err);
   }
 }
+// ?startDate=2026-01-18&endDate=2026-01-23&page=1&pageRowSize=10
 
-async function getRequest(req, res) {
+async function getRequestDetail(req, res) {
   try {
-    const request = await service.getRequest();
+    const request = await service.getRequestDetail();
 
   } catch (err) {
     next(err);
@@ -71,7 +73,7 @@ async function reuseOperatorPartnerDetail(req, res, next) {
 
 module.exports = {
   getRequests,
-  getRequest,
+  getRequestDetail,
   updateRequest,
   reuseOperatorPartnerList,
   reuseOperatorPartnerDetail
