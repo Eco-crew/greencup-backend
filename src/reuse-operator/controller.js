@@ -1,74 +1,68 @@
 const service = require('./service');
 
-function getRequests(req, res) {
+
+/****************************************************************************************************
+ *  수거지점장 - (대여) 요청 현황                                                                     *
+ ****************************************************************************************************/
+async function getRequests(req, res) {
   try {
-    const requests = service.getRequests();
-    // 진행중
+    const requests = await service.getRequests();
+
   } catch (err) {
     next(err);
   }
 }
 
+async function getRequest(req, res) {
+  try {
+    const request = await service.getRequest();
+
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function updateRequest(req, res) {
+  try {
+    const request = await service.updateRequest();
+
+  } catch (err) {
+    next(err);
+  }
+}
+
+// router.get('/requests/:requestId', authMiddleware.checkLogin, controller.getRequestDetail);
+// router.put('/requests/:requestId/complete', authMiddleware.checkLogin, controller.updateRequest);
 
 
+/****************************************************************************************************
+ *  수거지점장 - 업체관리                                                                             *
+ ****************************************************************************************************/
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/**
- *  수거지점장- 업체관리 영역
-*/
-
-//수거지점장- 업체관리 - 리스트
-async function reuseOperatorPartnerList (req, res, next){
-  const {partnerName, page, pageRowSize} = req.query;
+//수거지점장 - 업체관리 - 리스트
+async function reuseOperatorPartnerList(req, res, next) {
+  const { partnerName, page, pageRowSize } = req.query;
 
   //로그인한 당사자인 수거지점장의 uuid를 가져옴
   const reuseOperatorId = req.session.user.id;
 
-  try{
-    const reusePartnerList = await service.reuseOperatorPartnerList(reuseOperatorId, Number(page), Number(pageRowSize) , partnerName);
+  try {
+    const reusePartnerList = await service.reuseOperatorPartnerList(reuseOperatorId, Number(page), Number(pageRowSize), partnerName);
     res.json(reusePartnerList);
-  } catch(err){
+  } catch (err) {
     next(err);
   }
 
 }
 
-//수거지점장- 업체관리 - 업체 상세
-async function reuseOperatorPartnerDetail (req, res, next){
-  const {partnerId} = req.params;
+//수거지점장 - 업체관리 - 업체 상세
+async function reuseOperatorPartnerDetail(req, res, next) {
+  const { partnerId } = req.params;
 
-  try{
+  try {
     const reusePartnerObject = await service.reuseOperatorPartnerDetail(partnerId);
     res.json(reusePartnerObject);
-  } catch(err){
+  } catch (err) {
     next(err);
   }
 
@@ -93,4 +87,12 @@ async function reuseOperatorPartnerStats (req, res, next){
 }
 
 
-module.exports = { getRequests, reuseOperatorPartnerList, reuseOperatorPartnerDetail, reuseOperatorPartnerStats };
+
+module.exports = {
+  getRequests,
+  getRequest,
+  updateRequest,
+  reuseOperatorPartnerList,
+  reuseOperatorPartnerDetail,
+  reuseOperatorPartnerStats
+};

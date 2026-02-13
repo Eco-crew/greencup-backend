@@ -1,48 +1,34 @@
 // Business Logic
-const path = require('path');
-const dotenv = require('dotenv').config({
-  path: path.resolve(__dirname, '../../.env'),
-  quiet: true
-});
 const repository = require('./repository');
-const AuthError = require('../errors/AuthError');
 const AppError = require('../errors/AppError');
 
 
 const addOneDay = require('../shared/utils/addOneDay');
+/****************************************************************************************************
+ *  수거지점장 - (대여) 요청 현황                                                                     *
+ ****************************************************************************************************/
+async function getRequests({ }) {
+  const requests = await repository.getRequests({});
+
+  return requests;
+}
+
+async function getRequest({ }) {
+  const request = await repository.getRequest({});
+
+  return request;
+}
+
+async function updateRequest({ }) {
+  const request = await repository.updateRequest({});
+
+  return request;
+}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/**
- *  수거지점장- 업체관리 영역
-*/
+/****************************************************************************************************
+ *  수거지점장 - 업체관리                                                                             *
+ ****************************************************************************************************/
 
 //수거지점장- 업체관리 - 리스트
 async function reuseOperatorPartnerList(reuseOperatorId, page, pageRowSize, partnerName) {
@@ -302,9 +288,10 @@ async function reuseOperatorPartnerStats(reuseOperatorId, startDate, endDate) {
 
       }
     }
-
     changeNamePeriodTotalLoanTypeObjectList.push(changeNamePeriodTotalLoanTypeObject);
   });
+
+    
 
   //각 업체별로 전체 대여개수 중 몇개 대여를 했는지, 퍼센티지를 구한다
   changeNamePeriodTotalLoanTypeObjectList.forEach((changeNamePeriodTotalLoanTypeObject) => {
