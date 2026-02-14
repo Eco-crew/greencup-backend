@@ -10,6 +10,7 @@ const pool = mysql.createPool({
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
+  dateStrings: true, // DATE, DATETIME, TIMESTAMP 컬럼 모두 문자열로 반환 (이 옵션이 없으면 JS Date 객체 형태로 자동 변환되서 DATE 컬럼이 시간까지 보임)
   waitForConnections: true, // 현재 사용 가능한 '연결(connection)'이 없으면, 다른 연결이 반환될 때까지 요청 대기(Queue). false면 즉시 오류 발생시킴
   connectionLimit: 10, // 커넥션풀에서 동시에 유지할 수 있는 최대 연결 수. 기본값 10
   maxIdle: 10, // idle 상태로 유지할 수 있는 (사용 중이 아니지만 풀에 남겨둘 수 있는) 최대 연결 수. 기본값은 'connectionLimit'과 동일
