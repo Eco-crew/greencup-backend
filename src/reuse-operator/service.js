@@ -6,31 +6,83 @@ const AppError = require('../errors/AppError');
 /****************************************************************************************************
  *  수거지점장 - (대여) 요청 현황                                                                     *
  ****************************************************************************************************/
-async function getRequests({ startDate, endDate, status = null, pageRowSize, page }) {
-  // incomplete 조건절이 위에 와야 한다. ※ complete을 위에 두면 incomplete도 그 조건절을 타게 되므로 주의!
-  // if (path.includes('incomplete')) {
-  // } else if (path.includes('complete')) {
+// 수거지점장 - 요청 현황 목록: 전체 / 완료 / 미완료
+async function getRequests({
+  startDate = '2020-01-01',
+  endDate = '2020-01-01',
+  status = null, // null or undefined가 들어왔을 때 발생할 오류 예방용 기본값
+  pageRowSize = 1,
+  page = 1
+}) {
+
+  // 함수 반환값이 null, undefined일 때 등 예외 상황에서 발생할 오류 예방용 기본값 적용
+  const limit = parseInt(pageRowSize) || 1;
+  const offset = Math.max(0, ((parseInt(page) || 1) - 1) * limit); // page 값이 음수이면 0으로 치환
+
+  const requests = await repository.getRequests({
+    startDate,
+    endDate,
+    status,
+    limit,
+    offset
+  });
+
+  // if (!requests) {
+  //   throw new AppError('쿼리 결과가 없습니다.');
   // }
 
-  const requests = await repository.getRequests({ startDate, endDate, status, pageRowSize, page });
+  return requests || []; // 조회 조건에 따라 결과가 없을 수도 있는 조회이므로, 결과가 없으면 오류 처리 대신 빈 배열 반환
+}
 
-  if (!requests) {
-    throw new AppError('쿼리 결과가 없습니다.');
+function convertClosedDays(bitTypeClosedDays) {
+  const days = ['월', '화', '수', '목', '금', '토', '일'];
+  const closedDaysArr = [];
+
+  for (let i = 0, mask = 0b10000000; i < 7; i++) {
+    mask = mask >> 1; // mask를 월요일 → 일요일 순으로 한 bit씩 이동시키면서
+    // console.log(mask);
+    if (bitTypeClosedDays & mask) { // 상응하는 업체의 정기 휴일을 전부 closedDaysArr 배열에 넣는다.
+      closedDaysArr.push(days[i]);
+    }
   }
 
-  return requests;
+  return closedDaysArr;
 }
 
-async function getRequestDetail({ }) {
-  const request = await repository.getRequestDetail({});
+// 수거지점장 - 개별 요청 현황 (요청 한 건의 상세 페이지)
+async function getRequestDetail(id) {
+  const request = await repository.getRequestDetail(id);
+
+  // 대여 요청 목록에서 특정 건을 선택해서 상세 정보를 조회하는 것이므로, 결과가 없으면 오류 상황
+  if (!request) {
+    throw new AppError('SQL 쿼리 결과가 없습니다.');
+  }
+
+  request.closedDaysArr = convertClosedDays(request.closed_days);
 
   return request;
 }
 
-async function updateRequest({ }) {
-  const request = await repository.updateRequest({});
+// 수거지점장 - 개별 요청 처리: 완료/미완료 처리
+async function updateRequestStatus({ id, status }) {
+  const result = await repository.updateRequestStatus({ id, status });
 
-  return request;
+  if (!result) {
+    throw new AppError('SQL 업데이트 결과가 없습니다.');
+  }
+
+  return result;
+}
+
+// 수거지점장 - 개별 요청 처리: 파손 및 분실 처리
+async function updateRequestCupQuantity({ id, brokenLostCount }) {
+  const result = await repository.updateRequestCupQuantity({ id, brokenLostCount });
+
+  if (!result) {
+    throw new AppError('SQL 업데이트 결과가 없습니다.');
+  }
+
+  return result;
 }
 
 
@@ -236,7 +288,8 @@ async function reuseOperatorPartnerDetail(partnerId) {
 module.exports = {
   getRequests,
   getRequestDetail,
-  updateRequest,
+  updateRequestStatus,
+  updateRequestCupQuantity,
   reuseOperatorPartnerList,
   reuseOperatorPartnerDetail
 };
