@@ -1,7 +1,7 @@
-// Business Logic
 const repository = require('./repository');
-const AppError = require('../errors/AppError');
-
+const { formatPhoneNumber } = require('../shared/utils/phone');
+const { convertClosedDays } = require('../shared/utils/date');
+// const AppError = require('../errors/AppError');
 
 /****************************************************************************************************
  *  수거지점장 - (대여) 요청 현황                                                                     *
@@ -18,71 +18,54 @@ async function getRequests({
   // 함수 반환값이 null, undefined일 때 등 예외 상황에서 발생할 오류 예방용 기본값 적용
   const limit = parseInt(pageRowSize) || 1;
   const offset = Math.max(0, ((parseInt(page) || 1) - 1) * limit); // page 값이 음수이면 0으로 치환
+  const results = await repository.getRequests({ startDate, endDate, status, limit, offset });
 
-  const requests = await repository.getRequests({
-    startDate,
-    endDate,
-    status,
-    limit,
-    offset
-  });
-
-  // if (!requests) {
-  //   throw new AppError('쿼리 결과가 없습니다.');
-  // }
-
-  return requests || []; // 조회 조건에 따라 결과가 없을 수도 있는 조회이므로, 결과가 없으면 오류 처리 대신 빈 배열 반환
-}
-
-function convertClosedDays(bitTypeClosedDays) {
-  const days = ['월', '화', '수', '목', '금', '토', '일'];
-  const closedDaysArr = [];
-
-  for (let i = 0, mask = 0b10000000; i < 7; i++) {
-    mask = mask >> 1; // mask를 월요일 → 일요일 순으로 한 bit씩 이동시키면서
-    // console.log(mask);
-    if (bitTypeClosedDays & mask) { // 상응하는 업체의 정기 휴일을 전부 closedDaysArr 배열에 넣는다.
-      closedDaysArr.push(days[i]);
-    }
-  }
-
-  return closedDaysArr;
+  return {
+    status: 200,
+    success: '요청 현황 목록 조회 완료',
+    requests: results, // 조회는 성공했지만 조건에 맞는 요청이 없으면 빈 배열
+    searchRequestCount: results.length,
+    totalRequestCount: results.length ? results.reduce((acc, request) => acc += request.needCount, 0) : 0,
+    totalCompletedCount: results.length ? results.reduce((acc, request) => acc += request.returnCount, 0) : 0
+  };
 }
 
 // 수거지점장 - 개별 요청 현황 (요청 한 건의 상세 페이지)
 async function getRequestDetail(id) {
   const request = await repository.getRequestDetail(id);
 
-  // 대여 요청 목록에서 특정 건을 선택해서 상세 정보를 조회하는 것이므로, 결과가 없으면 오류 상황
-  if (!request) {
-    throw new AppError('SQL 쿼리 결과가 없습니다.');
-  }
-
   request.closedDaysArr = convertClosedDays(request.closed_days);
+  request.partnerManagerPhone = formatPhoneNumber(request.manager_phone_number);
 
-  return request;
+  return {
+    status: 200,
+    success: '요청 현황 상세 조회 완료',
+    requestDetail: request
+  };
 }
 
 // 수거지점장 - 개별 요청 처리: 완료/미완료 처리
 async function updateRequestStatus({ id, status }) {
   const result = await repository.updateRequestStatus({ id, status });
 
-  if (!result) {
-    throw new AppError('SQL 업데이트 결과가 없습니다.');
-  }
-
-  return result;
+  return {
+    status: 200,
+    success: '요청 변경 성공 - 상태',
+    id,
+    status: status == 'complete' ? '완료' : '미완료'
+  };
 }
 
 // 수거지점장 - 개별 요청 처리: 파손 및 분실 처리
 async function updateRequestCupQuantity({ id, brokenLostCount }) {
   const result = await repository.updateRequestCupQuantity({ id, brokenLostCount });
 
-  if (!result) {
-    throw new AppError('SQL 업데이트 결과가 없습니다.');
-  }
-
-  return result;
+  return {
+    status: 200,
+    success: '요청 변경 성공 - 파손 개수',
+    id,
+    brokenLostCount
+  };
 }
 
 

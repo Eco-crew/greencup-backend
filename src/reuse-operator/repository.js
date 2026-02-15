@@ -1,7 +1,7 @@
 // DB Connection Pool에서 가용 커넥션을 받아온다 (없으면 큐에서 요청 대기)
 //const connection = require('../db/connection').getConnection();
 const db = require('../db/connection');
-
+const DBError = require('../errors/DBError');
 
 /****************************************************************************************************
  *  수거지점장 - (대여) 요청 현황                                                                     *
@@ -10,39 +10,41 @@ const db = require('../db/connection');
 async function getRequests({ startDate, endDate, status, limit, offset }) {
   let connection;
 
+  const query = `
+    SELECT
+      dr.id AS requestId,
+      dr.rented_cup_quantity AS needCount,
+      dr.returned_cup_quantity AS returnCount,
+      dr.lost_cup_quantity AS brokenLostCount,
+      p.site_name AS partnerName,
+      dr.deliver_by_time AS wantedVisitTime,
+      dr.rental_date AS requestedDate,
+      IF(dr.status = 'complete', 'true', 'false') AS completed
+    FROM daily_rentals dr
+    JOIN partners p ON dr.partner_id = p.id
+    WHERE dr.rental_date BETWEEN ? AND ?
+    ${status ? `AND dr.status = ?` : ''}
+    ORDER BY dr.status, dr.rental_date ASC, dr.deliver_by_time DESC, dr.rented_cup_quantity DESC
+    LIMIT ?
+    OFFSET ?
+    `;
+  // 정렬 기준: 미완료 우선, 최근 일자 우선, 대여(배송) 시간이 이른 건 우선, 대여 시간이 같으면 대여 수량이 많은 업체 우선
+  // binding parameter 형식: startDate or endDate = '2026-02-01'
+  const args = [startDate, endDate];
+  if (status) args.push(status); // endpoint별 처리: /total 은 status 조건문과 인수 제외, /complete 및 /incomplete 는 둘 다 추가
+  args.push(limit.toString());
+  args.push(offset.toString());
+  // args.push(limit.toString());  // int 유형 변수를 그대로 넣었더니 connection.execute 문 실행시 MySQL 오류 발생. 문자열로 변환하니 해결됨
+  // args.push(offset.toString()); // int 형도 문제 없어야 하는데, MySQL 드라이버 오류인 듯
+
   try {
     connection = await db.getConnection();
-    const query = `
-      SELECT
-        dr.id,
-        dr.rented_cup_quantity,
-        dr.returned_cup_quantity,
-        dr.lost_cup_quantity,
-        p.site_name,
-        dr.deliver_by_time,
-        dr.rental_date,
-        dr.status
-      FROM daily_rentals dr
-      JOIN partners p ON dr.partner_id = p.id
-      WHERE dr.rental_date BETWEEN ? AND ?
-      ${status ? `AND dr.status = ?` : ''}
-      ORDER BY dr.status, dr.rental_date ASC, dr.deliver_by_time DESC, dr.rented_cup_quantity DESC
-      LIMIT ?
-      OFFSET ?
-      `;
-    // 정렬 기준: 미완료 우선, 최근 일자 우선, 대여(배송) 시간이 이른 건 우선, 대여 시간이 같으면 대여 수량이 많은 업체 우선
-    // 형식 예시: startDate or endDate = '2026-02-01' / pageRowSize = 10 / page=1
-    // cf. LIMIT ? OFFSET ?은 LIMIT ?, ? 형태로도 사용할 수 있는데, 인수 순서가 뒤바껴서 시작, 개수 순으로 온다.
-    const args = [startDate, endDate];
-    if (status) args.push(status); // endpoint별 처리: /total 은 status 조건문과 인수 제외, /complete 및 /incomplete 는 둘 다 추가
-    args.push(limit.toString());
-    args.push(offset.toString());
-    // args.push(limit.toString());  // int 유형 변수를 그대로 넣었더니 connection.execute 문 실행시 MySQL 오류 발생. 문자열로 변환하니 해결됨
-    // args.push(offset.toString()); // int 형도 문제 없어야 하는데, MySQL 드라이버 오류인 듯
 
-    const [result] = await connection.execute(query, args);
-    return result;
-
+    const [results] = await connection.execute(query, args);
+    return results;
+    // cf. 조회 조건에 따라 결과가 없을 수도 있는 조회이므로, 결과가 없어서 빈 배열이 반환되어도 오류 아님 (cf. 빈 배열은 truthy)
+  } catch (err) { // SQL 쿼리 실행이 실패한 예외 상황
+    throw new DBError(err.message, query, args);
   } finally { // 오류 발생시에도 실행 보장
     if (connection) connection.release(); // connection 리소스 사용 직후 반환
   }
@@ -52,38 +54,44 @@ async function getRequests({ startDate, endDate, status, limit, offset }) {
 async function getRequestDetail(id) {
   let connection;
 
-  try {
-    connection = await db.getConnection();
-
-    const query = `
-      SELECT
-        dr.id,
-        dr.rented_cup_quantity,
-        dr.returned_cup_quantity,
-        dr.lost_cup_quantity,
-        dr.rental_date,
-        dr.deliver_by_time,
-        dr.status,
-        dr.note,
-        dr.partner_id,
-        p.manager_email,
-        p.manager_name,
-        p.manager_nickname,
-        p.manager_phone_number,
-        p.site_name,
-        p.site_address,
-        p.open_time,
-        p.close_time,
-        p.closed_days,
-        p.business_type
+  const query = `
+    SELECT
+      dr.id,
+      dr.rented_cup_quantity AS needCount,
+      dr.returned_cup_quantity AS returnCount,
+      dr.lost_cup_quantity AS brokenLostCount,
+      dr.deliver_by_time AS wantedVisitTime,
+      dr.rental_date AS requestedDate,
+      IF(dr.status = 'complete', 'true', 'false') AS completed,
+      dr.note AS memo,
+      dr.partner_id AS partnerId,
+      p.manager_email AS managerEmail,
+      p.manager_name AS partnerManagerName,
+      p.manager_nickname AS partnerManagerNickname,
+      p.manager_phone_number,
+      p.site_name AS partnerName,
+      p.site_address AS partnerAddress,
+      p.open_time AS partnerOperatingStart,
+      p.close_time AS partnerOperatingEnd,
+      p.closed_days,
+      p.business_type AS businessType
       FROM daily_rentals dr
       JOIN partners p ON dr.partner_id = p.id
       WHERE dr.id = ?
-      `;
+    `;
+
+  try {
+    connection = await db.getConnection();
 
     const [result] = await connection.execute(query, [id]);
-    return result[0] || null;
+    // 대여 요청 목록에서 특정 건을 선택해서 상세 정보를 조회하는 것이므로, 결과가 없으면 오류 상황
+    if (result.length === 0) {
+      throw new DBError('개별 요청 현황이 없습니다.', query, [id], 404);
+    }
 
+    return result[0] || null;
+  } catch (err) {
+    throw new DBError(err.message, query, [id]);
   } finally {
     if (connection) connection.release();
   }
@@ -93,17 +101,19 @@ async function getRequestDetail(id) {
 async function updateRequestStatus({ id, status }) {
   let connection;
 
+  const query = `
+    UPDATE daily_rentals
+    SET status = ?
+    WHERE id = ?
+    `;
+
   try {
     connection = await db.getConnection();
-    const query = `
-      UPDATE daily_rentals
-      SET status = ?
-      WHERE id = ?
-      `;
 
     const [result] = await connection.execute(query, [status, id]);
     return (result.affectedRows == 1);
-
+  } catch (err) {
+    throw new DBError(err.message, query, [status, id]);
   } finally {
     if (connection) connection.release();
   }
@@ -113,18 +123,20 @@ async function updateRequestStatus({ id, status }) {
 async function updateRequestCupQuantity({ id, brokenLostCount }) {
   let connection;
 
+  const query = `
+    UPDATE daily_rentals
+    SET lost_cup_quantity = ?,
+        returned_cup_quantity = rented_cup_quantity - lost_cup_quantity
+    WHERE id = ?
+    `;
+
   try {
     connection = await db.getConnection();
-    const query = `
-      UPDATE daily_rentals
-      SET lost_cup_quantity = ?,
-          returned_cup_quantity = rented_cup_quantity - lost_cup_quantity
-      WHERE id = ?
-      `;
 
     const [result] = await connection.execute(query, [brokenLostCount, id]);
-    return (result.affectedRows === 1);
-
+    return (result.affectedRows == 1);
+  } catch (err) {
+    throw new DBError(err.message, query, [brokenLostCount, id]);
   } finally {
     if (connection) connection.release();
   }
