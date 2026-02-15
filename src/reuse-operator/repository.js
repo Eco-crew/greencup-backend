@@ -305,6 +305,56 @@ async function reuseOperatorPartnerDetailWithSpecialClosed(partnerId) {
   }
 }
 
+//수거지점장-통계- 수거지점의 현재개수 조회
+async function reuseOperatorPartnerStatsCurrentTotal(reuseOperatorId) {
+  let connection;
+
+  try {
+    connection = await db.getConnection();
+
+    const query = `
+      SELECT total_cup_quantity, available_cup_quantity, lost_cup_quantity
+      FROM greencup_branches
+      WHERE id = ?
+    ` ;
+
+    const [currentTotal] = await connection.query(query, [reuseOperatorId]);
+    return currentTotal[0] || null;
+  } finally {
+    if (connection) connection.release();
+  }
+
+}
+
+//수거지점-통계- 업체지점들의 기간별 대여개수
+async function reuseOperatorPartnerStatsPeriodTotal(reuseOperatorId, startDate, queryEndDate) {
+  let connection;
+
+  try {
+    connection = await db.getConnection();
+
+    //MySQL에서 TIMESTAMP(또는 DATETIME) 컬럼은
+    //문자열 'yyyy-mm-dd' 형태와 비교하면 자동으로 시간은 00:00:00으로 간주되어 비교
+    //이때 daily_rentals에서 completed 된것만 고른다
+    const query = `
+      SELECT SUM(d.rented_cup_quantity) AS rented_cup_quantity , SUM(d.returned_cup_quantity) AS returned_cup_quantity , SUM(d.lost_cup_quantity) AS lost_cup_quantity, p.business_type AS business_type
+      FROM daily_rentals d
+      JOIN partners p ON d.partner_id =  p.id
+      WHERE d.rental_date >= ? AND d.rental_date < ?
+      AND d.status = 'complete'
+      AND d.greencup_branch_id = ?
+      GROUP BY p.business_type;
+    ` ;
+
+    const [periodTotal] = await connection.query(query, [startDate, queryEndDate, reuseOperatorId]);
+    return periodTotal || null;
+  } finally {
+    if (connection) connection.release();
+  }
+
+  
+}
+
 
 module.exports = {
   getRequests,
@@ -315,5 +365,7 @@ module.exports = {
   reuseOperatorPartnerListCount,
   reuseOperatorPartnerDetailWithDaily,
   reuseOperatorPartnerDetailWithContracts,
-  reuseOperatorPartnerDetailWithSpecialClosed
+  reuseOperatorPartnerDetailWithSpecialClosed,
+  reuseOperatorPartnerStatsCurrentTotal, 
+  reuseOperatorPartnerStatsPeriodTotal 
 };

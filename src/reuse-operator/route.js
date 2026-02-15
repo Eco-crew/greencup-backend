@@ -47,6 +47,7 @@ router.get('/requests/:requestId', authMiddleware.checkLogin, controller.getRequ
 router.get('/partners', authMiddleware.checkLogin, controller.reuseOperatorPartnerList);
 // 수거지점장 - 업체관리- 업체상세
 router.get('/partners/:partnerId', authMiddleware.checkLogin, controller.reuseOperatorPartnerDetail);
+router.get('/stats', authMiddleware.checkLogin, controller.reuseOperatorPartnerStats);
 
 
 module.exports = router;

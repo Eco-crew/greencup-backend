@@ -3,6 +3,7 @@ const repository = require('./repository');
 const AppError = require('../errors/AppError');
 
 
+const addOneDay = require('../shared/utils/addOneDay');
 /****************************************************************************************************
  *  수거지점장 - (대여) 요청 현황                                                                     *
  ****************************************************************************************************/
@@ -284,6 +285,86 @@ async function reuseOperatorPartnerDetail(partnerId) {
   return { partner: changeNamePartnerObject, settingInfo: changeNamePartnerSettingObject, weeklyOffDays: weeklyOffDaysList, offDates: changeNameClosedDates }
 }
 
+//수거지점장 - 통계
+async function reuseOperatorPartnerStats(reuseOperatorId, startDate, endDate) {
+  //쿼리 조회를 위해 endDate에 하루를 더해야한다
+  let queryEndDate = addOneDay(endDate);
+  console.log(queryEndDate);
+
+  //수거지점장-통계- 수거지점의 현재개수 조회
+  let currentTotal = await repository.reuseOperatorPartnerStatsCurrentTotal(reuseOperatorId);
+
+
+  let changeNameCurrentTotalObject = {};
+  for (const [key, value] of Object.entries(currentTotal)) {
+    switch (key) {
+      case "total_cup_quantity":
+        changeNameCurrentTotalObject.currentTotalCount = value;
+        break;
+      case "available_cup_quantity":
+        changeNameCurrentTotalObject.currentHaveCount = value;
+        break;
+      case "lost_cup_quantity":
+        changeNameCurrentTotalObject.totalBrokenLostCount = value;
+        break;
+      default:
+        break;
+
+    }
+  }
+
+  //현재 총 대여중인 개수를 구한다
+  changeNameCurrentTotalObject.currentTotalLoanCount = changeNameCurrentTotalObject.currentTotalCount - changeNameCurrentTotalObject.currentHaveCount - changeNameCurrentTotalObject.totalBrokenLostCount;
+
+
+  //조회기간동안 전체 대여 개수
+  let periodTotalLoanCount = 0;
+  //조회기간동안 전체 반납 개수
+  let periodTotalReturnCount = 0;
+  //조회기간동안 전체 파손 및 분실 개수
+  let periodTotalBrokenLostCount = 0;
+
+  //조회기간동안 빌려간 제휴 업체 종류(ex cafe)  배열
+  let periodTotalLoanTypes = await repository.reuseOperatorPartnerStatsPeriodTotal(reuseOperatorId, startDate, queryEndDate);
+
+  let changeNamePeriodTotalLoanTypeObjectList = [];
+  periodTotalLoanTypes.forEach((periodTotalLoanType) => {
+    let changeNamePeriodTotalLoanTypeObject = {};
+    for (const [key, value] of Object.entries(periodTotalLoanType)) {
+      switch (key) {
+        case "rented_cup_quantity":
+          changeNamePeriodTotalLoanTypeObject.periodTotalLoanTypePercent = parseInt(value);
+          periodTotalLoanCount += parseInt(value);
+          break;
+        case "returned_cup_quantity":
+          periodTotalReturnCount += parseInt(value);
+          break;
+        case "lost_cup_quantity":
+          periodTotalBrokenLostCount += parseInt(value);
+          break;
+        case "business_type":
+          changeNamePeriodTotalLoanTypeObject.periodTotalLoanTypeName = value;
+          break;
+        default:
+          break;
+
+      }
+    }
+    changeNamePeriodTotalLoanTypeObjectList.push(changeNamePeriodTotalLoanTypeObject);
+  });
+
+
+
+  //각 업체별로 전체 대여개수 중 몇개 대여를 했는지, 퍼센티지를 구한다
+  changeNamePeriodTotalLoanTypeObjectList.forEach((changeNamePeriodTotalLoanTypeObject) => {
+    changeNamePeriodTotalLoanTypeObject.periodTotalLoanTypePercent = (changeNamePeriodTotalLoanTypeObject.periodTotalLoanTypePercent / periodTotalLoanCount) * 100;
+  });
+
+  return { currentTotal: changeNameCurrentTotalObject, periodTotal: { periodTotalLoanCount: periodTotalLoanCount, periodTotalReturnCount: periodTotalReturnCount, periodTotalBrokenLostCount: periodTotalBrokenLostCount }, periodTotalLoanTypes: changeNamePeriodTotalLoanTypeObjectList };
+
+}
+
+
 
 module.exports = {
   getRequests,
@@ -291,5 +372,6 @@ module.exports = {
   updateRequestStatus,
   updateRequestCupQuantity,
   reuseOperatorPartnerList,
-  reuseOperatorPartnerDetail
+  reuseOperatorPartnerDetail,
+  reuseOperatorPartnerStats
 };

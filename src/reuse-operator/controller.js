@@ -103,6 +103,25 @@ async function reuseOperatorPartnerDetail(req, res, next) {
 
 }
 
+//수거지점장- 통계
+async function reuseOperatorPartnerStats (req, res, next){
+  const {startDate, endDate} = req.query;
+  console.log(startDate);
+  console.log(endDate);
+  
+  //로그인한 당사자인 수거지점장의 uuid를 가져옴
+  const reuseOperatorId = req.session.user.id;
+
+  try{
+    const reusePartnerStats = await service.reuseOperatorPartnerStats(reuseOperatorId, startDate, endDate);
+    res.json(reusePartnerStats);
+  } catch(err){
+    next(err);
+  }
+
+}
+
+
 
 module.exports = {
   getRequests,
@@ -110,5 +129,6 @@ module.exports = {
   updateRequestStatus,
   updateRequestCupQuantity,
   reuseOperatorPartnerList,
-  reuseOperatorPartnerDetail
+  reuseOperatorPartnerDetail,
+  reuseOperatorPartnerStats
 };
