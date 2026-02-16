@@ -18,8 +18,8 @@ async function getRequests(req, res, next) {
     queryParams.status = mapPathToStatus[req.path.split('/').pop()];
     console.log(queryParams);
 
-    const requests = await service.getRequests(queryParams);
-    res.json(requests);
+    const result = await service.getRequests(queryParams);
+    res.json(result);
   } catch (err) {
     next(err);
   }
@@ -30,8 +30,8 @@ async function getRequestDetail(req, res, next) {
   const id = req.params.requestId;
 
   try {
-    const request = await service.getRequestDetail(id);
-    res.json(request);
+    const result = await service.getRequestDetail(id);
+    res.json(result);
   } catch (err) {
     next(err);
   }
@@ -50,7 +50,7 @@ async function updateRequestStatus(req, res, next) {
 
   try {
     const result = await service.updateRequestStatus({ id, status });
-    res.json({ success: result });
+    res.json(result);
   } catch (err) {
     next(err);
   }
@@ -63,7 +63,7 @@ async function updateRequestCupQuantity(req, res, next) {
 
   try {
     const result = await service.updateRequestCupQuantity({ id, brokenLostCount });
-    res.json({ success: result });
+    res.json(result);
   } catch (err) {
     next(err);
   }
