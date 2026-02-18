@@ -1,5 +1,3 @@
-// DB Connection Pool에서 가용 커넥션을 받아온다 (없으면 큐에서 요청 대기)
-//const connection = require('../db/connection').getConnection();
 const db = require('../db/connection');
 const DBError = require('../errors/DBError');
 
@@ -38,7 +36,7 @@ async function getRequests({ startDate, endDate, status, limit, offset }) {
   // args.push(offset.toString()); // int 형도 문제 없어야 하는데, MySQL 드라이버 오류인 듯
 
   try {
-    connection = await db.getConnection();
+    connection = await db.getConnection(); // DB Connection Pool에서 가용 커넥션을 받아온다 (없으면 큐에서 요청 대기)
 
     const [results] = await connection.execute(query, args);
     return results;
@@ -364,7 +362,7 @@ async function reuseOperatorPartnerStatsPeriodTotal(reuseOperatorId, startDate, 
     if (connection) connection.release();
   }
 
-  
+
 }
 
 
@@ -378,6 +376,6 @@ module.exports = {
   reuseOperatorPartnerDetailWithDaily,
   reuseOperatorPartnerDetailWithContracts,
   reuseOperatorPartnerDetailWithSpecialClosed,
-  reuseOperatorPartnerStatsCurrentTotal, 
-  reuseOperatorPartnerStatsPeriodTotal 
+  reuseOperatorPartnerStatsCurrentTotal,
+  reuseOperatorPartnerStatsPeriodTotal
 };

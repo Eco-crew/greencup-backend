@@ -4,7 +4,7 @@ const service = require('./service');
 /****************************************************************************************************
  *  제휴업체 - 메뉴명 또는 업무명                                                                     *
  ****************************************************************************************************/
-async function functionTemplate(req, res) {
+async function functionTemplate(req, res, next) {
   try {
     const template = await service.functionTemplate();
 

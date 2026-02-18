@@ -30,27 +30,6 @@ const connection = await mysql.createConnection({
 });
 */
 
-// DB 설정 및 연결 테스트
-/* 
-async function dbTest() {
-  const connection = await pool.getConnection(); // 일반 커넥션 사용하려면 이 문장 주석 처리
-
-  try {
-    const [results] = await connection.query(
-      'SELECT * FROM contracts WHERE daily_cup_quantity >= ?',
-      [300]
-    );
-
-    console.log(results);
-    connection.release();
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-dbTest();
- */
-
 async function getConnection() {
   return await pool.getConnection();
 }
