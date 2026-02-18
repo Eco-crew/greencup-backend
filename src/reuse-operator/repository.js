@@ -7,7 +7,7 @@ const DBError = require('../errors/DBError');
  *  수거지점장 - (대여) 요청 현황                                                                     *
  ****************************************************************************************************/
 // 수거지점장 - 요청 현황 목록: 전체 / 완료 / 미완료
-async function getRequests({ startDate, endDate, status, limit, offset }) {
+async function getRequests({ startDate, endDate, status, currentBranchId, limit, offset }) {
   let connection;
 
   const query = `
@@ -19,21 +19,21 @@ async function getRequests({ startDate, endDate, status, limit, offset }) {
       p.site_name AS partnerName,
       dr.deliver_by_time AS wantedVisitTime,
       dr.rental_date AS requestedDate,
-      IF(dr.status = 'complete', 'true', 'false') AS completed
+      dr.status
     FROM daily_rentals dr
     JOIN partners p ON dr.partner_id = p.id
     WHERE dr.rental_date BETWEEN ? AND ?
     ${status ? `AND dr.status = ?` : ''}
+    AND dr.greencup_branch_id = ?
     ORDER BY dr.status, dr.rental_date ASC, dr.deliver_by_time DESC, dr.rented_cup_quantity DESC
     LIMIT ?
     OFFSET ?
     `;
   // 정렬 기준: 미완료 우선, 최근 일자 우선, 대여(배송) 시간이 이른 건 우선, 대여 시간이 같으면 대여 수량이 많은 업체 우선
   // binding parameter 형식: startDate or endDate = '2026-02-01'
-  const args = [startDate, endDate];
-  if (status) args.push(status); // endpoint별 처리: /total 은 status 조건문과 인수 제외, /complete 및 /incomplete 는 둘 다 추가
-  args.push(limit.toString());
-  args.push(offset.toString());
+  const args = [startDate, endDate, currentBranchId, limit.toString(), offset.toString()];
+  // endpoint별 처리: /total 은 status 조건문과 인수 모두 제외하고, /complete 과 /incomplete 은 둘 다 추가
+  if (status) args.splice(2, 0, status); // status 값이 있으면 위 args 배열 3번쨰 요소로 추가
   // args.push(limit.toString());  // int 유형 변수를 그대로 넣었더니 connection.execute 문 실행시 MySQL 오류 발생. 문자열로 변환하니 해결됨
   // args.push(offset.toString()); // int 형도 문제 없어야 하는데, MySQL 드라이버 오류인 듯
 
@@ -51,7 +51,7 @@ async function getRequests({ startDate, endDate, status, limit, offset }) {
 }
 
 // 수거지점장 - 개별 요청 현황 (요청 한 건의 상세 페이지)
-async function getRequestDetail(id) {
+async function getRequestDetail({ requestId, currentBranchId }) {
   let connection;
 
   const query = `
@@ -62,7 +62,7 @@ async function getRequestDetail(id) {
       dr.lost_cup_quantity AS brokenLostCount,
       dr.deliver_by_time AS wantedVisitTime,
       dr.rental_date AS requestedDate,
-      IF(dr.status = 'complete', 'true', 'false') AS completed,
+      dr.status,
       dr.note AS memo,
       dr.partner_id AS partnerId,
       p.manager_email AS managerEmail,
@@ -78,12 +78,12 @@ async function getRequestDetail(id) {
       FROM daily_rentals dr
       JOIN partners p ON dr.partner_id = p.id
       WHERE dr.id = ?
+      AND dr.greencup_branch_id = ?
     `;
 
   try {
     connection = await db.getConnection();
-
-    const [result] = await connection.execute(query, [id]);
+    const [result] = await connection.execute(query, [requestId, currentBranchId]);
     // 대여 요청 목록에서 특정 건을 선택해서 상세 정보를 조회하는 것이므로, 결과가 없으면 오류 상황
     if (result.length === 0) {
       throw new DBError('개별 요청 현황이 없습니다.', query, [id], 404);
@@ -91,36 +91,37 @@ async function getRequestDetail(id) {
 
     return result[0] || null;
   } catch (err) {
-    throw new DBError(err.message, query, [id]);
+    throw new DBError(err.message, query, [requestId, currentBranchId]);
   } finally {
     if (connection) connection.release();
   }
 }
 
 // 수거지점장 - 개별 요청 처리: 완료/미완료 처리
-async function updateRequestStatus({ id, status }) {
+async function updateRequestStatus({ requestId, currentBranchId, status }) {
   let connection;
 
   const query = `
     UPDATE daily_rentals
     SET status = ?
     WHERE id = ?
+    AND greencup_branch_id = ?
     `;
 
   try {
     connection = await db.getConnection();
 
-    const [result] = await connection.execute(query, [status, id]);
+    const [result] = await connection.execute(query, [status, requestId, currentBranchId]);
     return (result.affectedRows == 1);
   } catch (err) {
-    throw new DBError(err.message, query, [status, id]);
+    throw new DBError(err.message, query, [status, requestId, currentBranchId]);
   } finally {
     if (connection) connection.release();
   }
 }
 
 // 수거지점장 - 개별 요청 처리: 파손 및 분실 처리
-async function updateRequestCupQuantity({ id, brokenLostCount }) {
+async function updateRequestCupQuantity({ requestId, currentBranchId, brokenLostCount }) {
   let connection;
 
   const query = `
@@ -128,15 +129,16 @@ async function updateRequestCupQuantity({ id, brokenLostCount }) {
     SET lost_cup_quantity = ?,
         returned_cup_quantity = rented_cup_quantity - lost_cup_quantity
     WHERE id = ?
+    AND greencup_branch_id = ?
     `;
 
   try {
     connection = await db.getConnection();
 
-    const [result] = await connection.execute(query, [brokenLostCount, id]);
+    const [result] = await connection.execute(query, [brokenLostCount, requestId, currentBranchId]);
     return (result.affectedRows == 1);
   } catch (err) {
-    throw new DBError(err.message, query, [brokenLostCount, id]);
+    throw new DBError(err.message, query, [brokenLostCount, requestId, currentBranchId]);
   } finally {
     if (connection) connection.release();
   }
