@@ -15,7 +15,7 @@ async function getRequests({ startDate, endDate, status, currentBranchId, limit,
       dr.returned_cup_quantity AS returnCount,
       dr.lost_cup_quantity AS brokenLostCount,
       p.site_name AS partnerName,
-      dr.deliver_by_time AS wantedVisitTime,
+      DATE_FORMAT(dr.deliver_by_time, '%H:%i') AS wantedVisitTime,
       dr.rental_date AS requestedDate,
       dr.status
     FROM daily_rentals dr
@@ -58,7 +58,7 @@ async function getRequestDetail({ requestId, currentBranchId }) {
       dr.rented_cup_quantity AS needCount,
       dr.returned_cup_quantity AS returnCount,
       dr.lost_cup_quantity AS brokenLostCount,
-      dr.deliver_by_time AS wantedVisitTime,
+      DATE_FORMAT(dr.deliver_by_time, '%H:%i') AS wantedVisitTime,
       dr.rental_date AS requestedDate,
       dr.status,
       dr.note AS memo,
@@ -69,8 +69,8 @@ async function getRequestDetail({ requestId, currentBranchId }) {
       p.manager_phone_number,
       p.site_name AS partnerName,
       p.site_address AS partnerAddress,
-      p.open_time AS partnerOperatingStart,
-      p.close_time AS partnerOperatingEnd,
+      DATE_FORMAT(p.open_time, '%H:%i') AS partnerOperatingStart,
+      DATE_FORMAT(p.close_time, '%H:%i') AS partnerOperatingEnd,
       p.closed_days,
       p.business_type AS businessType
       FROM daily_rentals dr
