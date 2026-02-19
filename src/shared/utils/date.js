@@ -1,5 +1,6 @@
 function convertClosedDays(bitTypeClosedDays) {
-  const days = ['월', '화', '수', '목', '금', '토', '일'];
+  // const days = ['월', '화', '수', '목', '금', '토', '일'];
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const closedDaysArr = [];
 
   for (let i = 0, mask = 0b10000000; i < 7; i++) {
