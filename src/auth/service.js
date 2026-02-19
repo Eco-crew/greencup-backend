@@ -88,7 +88,7 @@ async function login({ username, password, userType }) {
   if (!isValid) {
     throw new AuthError('아이디나 비밀번호가 맞지 않습니다.'); // 보안을 위해서 어느 것이 틀린지 정확한 정보를 제공하지 않음
   }
-  return { id, manager_email, manager_name };
+  return { id, manager_email, manager_name }; // id: 로그인한 관리자 소속 [그린컵 지점이나 제휴업체]의 ID
 };
 
 function logout({ session }) {

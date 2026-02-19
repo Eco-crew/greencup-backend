@@ -11,61 +11,68 @@ const addOneDay = require('../shared/utils/addOneDay');
 async function getRequests({
   startDate = '2020-01-01',
   endDate = '2020-01-01',
-  status = null, // null or undefined가 들어왔을 때 발생할 오류 예방용 기본값
-  pageRowSize = 1,
-  page = 1
+  pageRowSize,
+  page,
+  status,
+  currentBranchId
 }) {
 
-  // 함수 반환값이 null, undefined일 때 등 예외 상황에서 발생할 오류 예방용 기본값 적용
-  const limit = parseInt(pageRowSize) || 1;
-  const offset = Math.max(0, ((parseInt(page) || 1) - 1) * limit); // page 값이 음수이면 0으로 치환
-  const results = await repository.getRequests({ startDate, endDate, status, limit, offset });
+  // 사용자 입력값이 null, undefined이면 null 병합해서 1로 변환, 음수값이어도 1로 변환(max 함수)해서 예외 상황에서 발생할 오류 예방
+  const limit = Math.max(1, parseInt(pageRowSize ?? 1));
+  const offset = (Math.max(1, parseInt(page ?? 1)) - 1) * limit;
+  const results = await repository.getRequests({ startDate, endDate, status, currentBranchId, limit, offset }) || [];
 
   return {
-    status: 200,
+    // status: 200,
     success: '요청 현황 목록 조회 완료',
     requests: results, // 조회는 성공했지만 조건에 맞는 요청이 없으면 빈 배열
     searchRequestCount: results.length,
-    totalRequestCount: results.length ? results.reduce((acc, request) => acc += request.needCount, 0) : 0,
-    totalCompletedCount: results.length ? results.reduce((acc, request) => acc += request.returnCount, 0) : 0
+    completeCount: results.filter(request => request?.status == 'complete').length,
+    incompleteCount: results.filter(request => request?.status == 'incomplete').length,
+    cancelledCount: results.filter(request => request?.status == 'cancelled').length
   };
 }
 
 // 수거지점장 - 개별 요청 현황 (요청 한 건의 상세 페이지)
-async function getRequestDetail(id) {
-  const request = await repository.getRequestDetail(id);
+async function getRequestDetail(bindingParams) {
+  const request = await repository.getRequestDetail(bindingParams);
 
   request.closedDaysArr = convertClosedDays(request.closed_days);
   request.partnerManagerPhone = formatPhoneNumber(request.manager_phone_number);
 
   return {
-    status: 200,
+    // status: 200,
     success: '요청 현황 상세 조회 완료',
     requestDetail: request
   };
 }
 
 // 수거지점장 - 개별 요청 처리: 완료/미완료 처리
-async function updateRequestStatus({ id, status }) {
-  const result = await repository.updateRequestStatus({ id, status });
+// async function updateRequestStatus({ requestId, status }) {
+//   const result = await repository.updateRequestStatus({ requestId, status });
+async function updateRequestStatus(bindingParams) {
+  const result = await repository.updateRequestStatus(bindingParams);
 
   return {
-    status: 200,
+    // status: 200,
     success: '요청 변경 성공 - 상태',
-    id,
-    status: status == 'complete' ? '완료' : '미완료'
+    id: bindingParams.requestId,
+    status: bindingParams.status
+    // requestStatus: result.status == 'complete' ? '완료' : '미완료'
   };
 }
 
 // 수거지점장 - 개별 요청 처리: 파손 및 분실 처리
-async function updateRequestCupQuantity({ id, brokenLostCount }) {
-  const result = await repository.updateRequestCupQuantity({ id, brokenLostCount });
+// async function updateRequestCupQuantity({ requestId, brokenLostCount }) {
+//   const result = await repository.updateRequestCupQuantity({ requestId, brokenLostCount });
+async function updateRequestCupQuantity(bindingParams) {
+  const result = await repository.updateRequestCupQuantity(bindingParams);
 
   return {
-    status: 200,
+    // status: 200,
     success: '요청 변경 성공 - 파손 개수',
-    id,
-    brokenLostCount
+    id: bindingParams.requestId,
+    brokenLostCount: bindingParams.brokenLostCount
   };
 }
 
