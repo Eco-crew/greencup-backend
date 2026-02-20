@@ -184,11 +184,11 @@ async function reuseOperatorPartnerList(reuseOperatorId, page, pageRowSize, part
     let result;
     //업체이름을 검색 조건에 넣었으면 
     if (changedPartnerName) {
-      console.log("LIST PARAMS", [reuseOperatorId, `% ${changedPartnerName}% `, limitCount, offsetCount]);
+      console.log("LIST PARAMS", [reuseOperatorId, `%${changedPartnerName}%`, limitCount, offsetCount]);
       console.log(query);
       console.log(typeof limitCount, limitCount);
       console.log(typeof offsetCount, offsetCount);
-      const [partnerList] = await connection.query(query, [reuseOperatorId, `% ${changedPartnerName}% `, limitCount, offsetCount]);
+      const [partnerList] = await connection.query(query, [reuseOperatorId, `%${changedPartnerName}%`, limitCount, offsetCount]);
       result = partnerList;
     } else {
       console.log("LIST PARAMS", [reuseOperatorId, limitCount, offsetCount]);
@@ -230,7 +230,7 @@ async function reuseOperatorPartnerListCount(reuseOperatorId, partnerName) {
     let result;
     //업체이름을 검색 조건에 넣었으면 
     if (changedPartnerName) {
-      const [count] = await connection.query(query, [reuseOperatorId, `% ${changedPartnerName}% `]);
+      const [count] = await connection.query(query, [reuseOperatorId, `%${changedPartnerName}%`]);
       result = count[0]["result_count"] || null;
     } else {
       const [count] = await connection.query(query, [reuseOperatorId]);
