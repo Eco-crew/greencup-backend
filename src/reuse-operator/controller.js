@@ -9,7 +9,8 @@ async function getRequests(req, res, next) {
     const mapPathToStatus = {
       'total': null,
       'completed': 'complete',
-      'notcompleted': 'incomplete'
+      'notcompleted': 'incomplete',
+      'cancelled': 'cancelled'
     };
 
     // req.query.status = mapPathToStatus[req.path.split('/').slice(-1)[0]];
@@ -129,18 +130,18 @@ async function reuseOperatorPartnerDetail(req, res, next) {
 }
 
 //수거지점장- 통계
-async function reuseOperatorPartnerStats (req, res, next){
-  const {startDate, endDate} = req.query;
+async function reuseOperatorPartnerStats(req, res, next) {
+  const { startDate, endDate } = req.query;
   console.log(startDate);
   console.log(endDate);
-  
+
   //로그인한 당사자인 수거지점장의 uuid를 가져옴
   const reuseOperatorId = req.session.user.id;
 
-  try{
+  try {
     const reusePartnerStats = await service.reuseOperatorPartnerStats(reuseOperatorId, startDate, endDate);
     res.json(reusePartnerStats);
-  } catch(err){
+  } catch (err) {
     next(err);
   }
 

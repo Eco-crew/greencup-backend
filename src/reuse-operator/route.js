@@ -29,6 +29,8 @@ const authMiddleware = require('../shared/middlewares/auth'); // 로그인 인�
 router.get('/requests/total', authMiddleware.checkLogin, controller.getRequests);
 router.get('/requests/completed', authMiddleware.checkLogin, controller.getRequests);
 router.get('/requests/notcompleted', authMiddleware.checkLogin, controller.getRequests);
+router.get('/requests/cancelled', authMiddleware.checkLogin, controller.getRequests);
+
 
 // 수거지점장 - 개별 요청 처리: 완료 / 미완료 / 파손 및 분실 처리
 // (추후 아래 세 엔드포인트를 1개로 합치고 쿼리 파라미터를 이용하여 처리 로직을 분기하는 방식으로 리팩토링 예정 )
