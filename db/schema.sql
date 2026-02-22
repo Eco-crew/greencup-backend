@@ -59,7 +59,7 @@ CREATE TABLE contracts (
   contract_start_date DATE NOT NULL, -- 계약(렌탈) 시작일자
   contract_end_date DATE NOT NULL, -- 계약 종료일자
   daily_cup_quantity SMALLINT UNSIGNED NOT NULL DEFAULT 0, -- 일일 컵 대여 개수  / SMALLINT: 0~65535개 가능
-  deliver_by_time TIME NOT NULL, -- 매일 배송시간이므로 일자가 의미 없고 시간만 중요. 하지만 일일 요청으로 복사해야 하는데 TIME → DATETIME 복사 가능?
+  deliver_by_time TIME NOT NULL, -- 매일 배송시간이므로 일자가 의미 없고 시간만 중요
   greencup_branch_id CHAR(36) NOT NULL COLLATE utf8mb4_bin, -- UUID
   partner_id CHAR(36) NOT NULL COLLATE utf8mb4_bin, -- UUID
   note VARCHAR(128), -- 비고
@@ -111,6 +111,8 @@ CREATE TABLE daily_rentals (
   note VARCHAR(128), -- 비고
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  -- PRIMARY KEY (partner_id, rental_date), -- 한 '제휴 업체'가 '일일' 요청 레코드를 한 개밖에 가질 수 없으므로, PK를 이 복합키로 설정해야 함
+  -- 이미 id를 PK로 설정해놓은데다가, 위 복합키를 PK로 걸면 일일 요청 자동 생성 스케쥴링을 짧은 간격으로 테스트할 수 없어서 일단 보류
   FOREIGN KEY (greencup_branch_id)
     REFERENCES greencup_branches(id)
     ON DELETE NO ACTION

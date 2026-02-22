@@ -4,13 +4,14 @@ const session = require('express-session');
 const morgan = require('morgan');
 require('dotenv').config({ quiet: true }); // 환경 변수 이용
 const errorHandler = require('./src/shared/middlewares/errorHandler'); // Error Handler
+require('./src/reuse-operator/rental-requests-scheduler'); // 당일 대여 요청 자동 생성 스케쥴러
 // Routers
 const authRoute = require('./src/auth/route');
 const reuseOperatorRoute = require('./src/reuse-operator/route');
 const partnerRoute = require('./src/partner/route');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+// const PORT = process.env.PORT || 3000;
 
 
 // Middleware
