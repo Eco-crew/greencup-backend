@@ -21,8 +21,8 @@ async function getRequests({ startDate, endDate, status, currentBranchId, limit,
     FROM daily_rentals dr
     JOIN partners p ON dr.partner_id = p.id
     WHERE dr.rental_date BETWEEN ? AND ?
-    ${status ? `AND dr.status = ?` : ''}
-    AND dr.greencup_branch_id = ?
+      ${status ? `AND dr.status = ?` : ''}
+      AND dr.greencup_branch_id = ?
     ORDER BY dr.status, dr.rental_date ASC, dr.deliver_by_time DESC, dr.rented_cup_quantity DESC
     LIMIT ?
     OFFSET ?
@@ -73,9 +73,9 @@ async function getRequestDetail({ requestId, currentBranchId }) {
       DATE_FORMAT(p.close_time, '%H:%i') AS partnerOperatingEnd,
       p.closed_days,
       p.business_type AS businessType
-      FROM daily_rentals dr
-      JOIN partners p ON dr.partner_id = p.id
-      WHERE dr.id = ?
+    FROM daily_rentals dr
+    JOIN partners p ON dr.partner_id = p.id
+    WHERE dr.id = ?
       AND dr.greencup_branch_id = ?
     `;
 
@@ -103,14 +103,14 @@ async function updateRequestStatus({ requestId, currentBranchId, status }) {
     UPDATE daily_rentals
     SET status = ?
     WHERE id = ?
-    AND greencup_branch_id = ?
+      AND greencup_branch_id = ?
     `;
 
   try {
     connection = await db.getConnection();
 
     const [result] = await connection.execute(query, [status, requestId, currentBranchId]);
-    return (result.affectedRows == 1);
+    return result.affectedRows == 1;
   } catch (err) {
     throw new DBError(err.message, query, [status, requestId, currentBranchId]);
   } finally {
@@ -127,16 +127,57 @@ async function updateRequestCupQuantity({ requestId, currentBranchId, brokenLost
     SET lost_cup_quantity = ?,
         returned_cup_quantity = rented_cup_quantity - lost_cup_quantity
     WHERE id = ?
-    AND greencup_branch_id = ?
+      AND greencup_branch_id = ?
     `;
 
   try {
     connection = await db.getConnection();
 
     const [result] = await connection.execute(query, [brokenLostCount, requestId, currentBranchId]);
-    return (result.affectedRows == 1);
+    return result.affectedRows == 1;
   } catch (err) {
     throw new DBError(err.message, query, [brokenLostCount, requestId, currentBranchId]);
+  } finally {
+    if (connection) connection.release();
+  }
+}
+
+// (수거지점장) 당일 대여 요청 자동 생성
+async function generatePartnerDailyRequests() {
+  let connection;
+
+  const query = `
+    INSERT INTO daily_rentals(
+      id,
+      rented_cup_quantity,
+      rental_date,
+      deliver_by_time,
+      greencup_branch_id,
+      partner_id,
+      STATUS,
+      note
+      )
+    SELECT
+      UUID(),
+      daily_cup_quantity,
+      CURDATE(),
+      deliver_by_time,
+      greencup_branch_id,
+      partner_id,
+      'incomplete',
+      note
+    FROM contracts
+    WHERE CURDATE() <= contract_end_date;
+    `;
+
+  try {
+    connection = await db.getConnection();
+
+    const [result] = await connection.execute(query);
+    // console.log('result.affectedRows:', result.affectedRows);
+    return result.affectedRows >= 1;
+  } catch (err) {
+    throw new DBError(err.message, query);
   } finally {
     if (connection) connection.release();
   }
@@ -373,6 +414,7 @@ module.exports = {
   getRequestDetail,
   updateRequestStatus,
   updateRequestCupQuantity,
+  generatePartnerDailyRequests,
   reuseOperatorPartnerList,
   reuseOperatorPartnerListCount,
   reuseOperatorPartnerDetailWithDaily,
