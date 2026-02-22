@@ -11,6 +11,7 @@ const addOneDay = require('../shared/utils/addOneDay');
 async function getRequests({
   startDate = '2020-01-01',
   endDate = '2020-01-01',
+  partnerName = null,
   pageRowSize,
   page,
   status,
@@ -20,7 +21,7 @@ async function getRequests({
   // 사용자 입력값이 null, undefined이면 null 병합해서 1로 변환, 음수값이어도 1로 변환(max 함수)해서 예외 상황에서 발생할 오류 예방
   const limit = Math.max(1, parseInt(pageRowSize ?? 1));
   const offset = (Math.max(1, parseInt(page ?? 1)) - 1) * limit;
-  const results = await repository.getRequests({ startDate, endDate, status, currentBranchId, limit, offset }) || [];
+  const results = await repository.getRequests({ startDate, endDate, partnerName, status, currentBranchId, limit, offset }) || [];
 
   return {
     // status: 200,

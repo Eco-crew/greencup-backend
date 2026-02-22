@@ -5,7 +5,7 @@ const DBError = require('../errors/DBError');
  *  수거지점장 - (대여) 요청 현황                                                                     *
  ****************************************************************************************************/
 // 수거지점장 - 요청 현황 목록: 전체 / 완료 / 미완료
-async function getRequests({ startDate, endDate, status, currentBranchId, limit, offset }) {
+async function getRequests({ startDate, endDate, partnerName, status, currentBranchId, limit, offset }) {
   let connection;
 
   const query = `
@@ -22,6 +22,7 @@ async function getRequests({ startDate, endDate, status, currentBranchId, limit,
     JOIN partners p ON dr.partner_id = p.id
     WHERE dr.rental_date BETWEEN ? AND ?
     ${status ? `AND dr.status = ?` : ''}
+    ${partnerName ? `AND p.site_name LIKE ?` : ''}
     AND dr.greencup_branch_id = ?
     ORDER BY dr.status, dr.rental_date ASC, dr.deliver_by_time DESC, dr.rented_cup_quantity DESC
     LIMIT ?
@@ -32,6 +33,8 @@ async function getRequests({ startDate, endDate, status, currentBranchId, limit,
   const args = [startDate, endDate, currentBranchId, limit.toString(), offset.toString()];
   // endpoint별 처리: /total 은 status 조건문과 인수 모두 제외하고, /complete 과 /incomplete 은 둘 다 추가
   if (status) args.splice(2, 0, status); // status 값이 있으면 위 args 배열 3번쨰 요소로 추가
+  // partnerName 값이 있으면 위 args 배열에서 currentBranchId 요소 앞에 추가
+  if (partnerName) args.splice(args.length - 3, 0, `%${partnerName}%`);
   // args.push(limit.toString());  // int 유형 변수를 그대로 넣었더니 connection.execute 문 실행시 MySQL 오류 발생. 문자열로 변환하니 해결됨
   // args.push(offset.toString()); // int 형도 문제 없어야 하는데, MySQL 드라이버 오류인 듯
 
