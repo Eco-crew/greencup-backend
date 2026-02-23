@@ -8,6 +8,18 @@ const DBError = require('../errors/DBError');
 async function getRequests({ startDate, endDate, partnerName, status, currentBranchId, limit, offset }) {
   let connection;
 
+  // FE 페이지네이션을 위한 레코드 개수 집계 쿼리
+  const totalCountQuery = `
+    SELECT COUNT(*) AS totalCount
+    FROM daily_rentals dr
+    JOIN partners p ON dr.partner_id = p.id
+    WHERE dr.rental_date BETWEEN ? AND ?
+    ${status ? `AND dr.status = ?` : ''}
+    ${partnerName ? `AND p.site_name LIKE ?` : ''}
+    AND dr.greencup_branch_id = ?
+    `;
+
+  // 실제 레코드 쿼리
   const query = `
     SELECT
       dr.id AS requestId,
@@ -17,8 +29,7 @@ async function getRequests({ startDate, endDate, partnerName, status, currentBra
       p.site_name AS partnerName,
       DATE_FORMAT(dr.deliver_by_time, '%H:%i') AS wantedVisitTime,
       dr.rental_date AS requestedDate,
-      dr.status,
-      COUNT(dr.id) OVER() AS totalCount
+      dr.status
     FROM daily_rentals dr
     JOIN partners p ON dr.partner_id = p.id
     WHERE dr.rental_date BETWEEN ? AND ?
@@ -31,22 +42,33 @@ async function getRequests({ startDate, endDate, partnerName, status, currentBra
     `;
   // 정렬 기준: 미완료 우선, 최근 일자 우선, 대여(배송) 시간이 이른 건 우선, 대여 시간이 같으면 대여 수량이 많은 업체 우선
   // binding parameter 형식: startDate or endDate = '2026-02-01'
-  const args = [startDate, endDate, currentBranchId, limit.toString(), offset.toString()];
+
+
+  // const args = [startDate, endDate, currentBranchId, limit.toString(), offset.toString()];
+  const args = [startDate, endDate, currentBranchId];
   // endpoint별 처리: /total 은 status 조건문과 인수 모두 제외하고, /complete 과 /incomplete 은 둘 다 추가
-  if (status) args.splice(2, 0, status); // status 값이 있으면 위 args 배열 3번쨰 요소로 추가
-  // partnerName 값이 있으면 위 args 배열에서 currentBranchId 요소 앞에 추가
-  if (partnerName) args.splice(args.length - 3, 0, `%${partnerName}%`);
-  // args.push(limit.toString());  // int 유형 변수를 그대로 넣었더니 connection.execute 문 실행시 MySQL 오류 발생. 문자열로 변환하니 해결됨
-  // args.push(offset.toString()); // int 형도 문제 없어야 하는데, MySQL 드라이버 오류인 듯
+  if (status) args.push(status); // status 값이 있으면 args 배열 끝에 추가
+  if (partnerName) args.push(`%${partnerName}%`); // partnerName 값이 있으면 args 배열 끝에 추가
 
   try {
     connection = await db.getConnection(); // DB Connection Pool에서 가용 커넥션을 받아온다 (없으면 큐에서 요청 대기)
+    // console.log('repository.js → try { } block 진입');
 
-    const [results] = await connection.execute(query, args);
-    return results;
+    const [countResult] = await connection.execute(totalCountQuery, args);
+    // console.log('repository.js → countResult:', countResult);
+
+    // 조회 조건에 맞는 요청 건수가 존재할 때만 요청 목록 쿼리
+    args.push(limit.toString());
+    args.push(offset.toString());
+    const [rows] = (countResult[0].totalCount > 0) ? await connection.execute(query, args) : [[]];
+    console.log('repository.js → rows:', rows);
+
+    return { rows: rows ?? [], totalCount: countResult[0].totalCount };
+    // return { rows, totalCount: countResult[0].totalCount };
+
     // cf. 조회 조건에 따라 결과가 없을 수도 있는 조회이므로, 결과가 없어서 빈 배열이 반환되어도 오류 아님 (cf. 빈 배열은 truthy)
   } catch (err) { // SQL 쿼리 실행이 실패한 예외 상황
-    throw new DBError(err.message, query, args);
+    throw new DBError(err.message, err.sql, args);
   } finally { // 오류 발생시에도 실행 보장
     if (connection) connection.release(); // connection 리소스 사용 직후 반환
   }

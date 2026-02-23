@@ -21,17 +21,20 @@ async function getRequests({
   // 사용자 입력값이 null, undefined이면 null 병합해서 1로 변환, 음수값이어도 1로 변환(max 함수)해서 예외 상황에서 발생할 오류 예방
   const limit = Math.max(1, parseInt(pageRowSize ?? 1));
   const offset = (Math.max(1, parseInt(page ?? 1)) - 1) * limit;
-  const results = await repository.getRequests({ startDate, endDate, partnerName, status, currentBranchId, limit, offset }) || [];
+  // const results = await repository.getRequests({ startDate, endDate, partnerName, status, currentBranchId, limit, offset }) || [];
+  const resultObj = await repository.getRequests({ startDate, endDate, partnerName, status, currentBranchId, limit, offset });
+  // console.log('service.js → resultObj:', resultObj);
 
   return {
     // status: 200,
     success: '요청 현황 목록 조회 완료',
-    requests: results, // 조회는 성공했지만 조건에 맞는 요청이 없으면 빈 배열
-    totalCount: results[0]?.totalCount || 0, // over() window 함수를 통해서 얻은, 조회 기준에 맞는 전체 레코드수 (LIMIT 적용 전 전체 개수)
-    searchRequestCount: results.length,
-    completeCount: results.filter(request => request?.status == 'complete').length,
-    incompleteCount: results.filter(request => request?.status == 'incomplete').length,
-    cancelledCount: results.filter(request => request?.status == 'cancelled').length
+    requests: resultObj?.rows || [], // 조회는 성공했지만 조건에 맞는 요청이 없으면 빈 배열
+    // totalCount: results[0]?.totalCount || 0, // over() window 함수를 통해서 얻은, 조회 기준에 맞는 전체 레코드수 (LIMIT 적용 전 전체 개수)
+    // searchRequestCount: results.length, // query parameter 중 pageRowSize (현재 10 고정) 값이라 별 의미 없어서 totalCount 값으로 대체
+    searchRequestCount: resultObj?.totalCount || 0,
+    completeCount: resultObj.rows.filter(request => request?.status == 'complete').length,
+    incompleteCount: resultObj.rows.filter(request => request?.status == 'incomplete').length,
+    cancelledCount: resultObj.rows.filter(request => request?.status == 'cancelled').length
   };
 }
 
