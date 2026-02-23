@@ -45,14 +45,14 @@ async function getRequests({ startDate, endDate, partnerName, status, currentBra
 
 
   // const args = [startDate, endDate, currentBranchId, limit.toString(), offset.toString()];
-  const args = [startDate, endDate, currentBranchId];
+  const args = [startDate, endDate];
   // endpoint별 처리: /total 은 status 조건문과 인수 모두 제외하고, /complete 과 /incomplete 은 둘 다 추가
   if (status) args.push(status); // status 값이 있으면 args 배열 끝에 추가
   if (partnerName) args.push(`%${partnerName}%`); // partnerName 값이 있으면 args 배열 끝에 추가
+  args.push(currentBranchId);
 
   try {
     connection = await db.getConnection(); // DB Connection Pool에서 가용 커넥션을 받아온다 (없으면 큐에서 요청 대기)
-    // console.log('repository.js → try { } block 진입');
 
     const [countResult] = await connection.execute(totalCountQuery, args);
     // console.log('repository.js → countResult:', countResult);
@@ -60,13 +60,13 @@ async function getRequests({ startDate, endDate, partnerName, status, currentBra
     // 조회 조건에 맞는 요청 건수가 존재할 때만 요청 목록 쿼리
     args.push(limit.toString());
     args.push(offset.toString());
+    // console.log('repository.js → args:', args);
     const [rows] = (countResult[0].totalCount > 0) ? await connection.execute(query, args) : [[]];
-    console.log('repository.js → rows:', rows);
+    // console.log('repository.js → rows:', rows);
 
     return { rows: rows ?? [], totalCount: countResult[0].totalCount };
-    // return { rows, totalCount: countResult[0].totalCount };
 
-    // cf. 조회 조건에 따라 결과가 없을 수도 있는 조회이므로, 결과가 없어서 빈 배열이 반환되어도 오류 아님 (cf. 빈 배열은 truthy)
+    // cf. 조회 조건에 따라 결과가 없을 수도 있는 조회이므로, 결과가 없어서 rows에 빈 배열이 반환되어도 오류 아님
   } catch (err) { // SQL 쿼리 실행이 실패한 예외 상황
     throw new DBError(err.message, err.sql, args);
   } finally { // 오류 발생시에도 실행 보장
