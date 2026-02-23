@@ -22,6 +22,7 @@ async function getRequests(req, res, next) {
     console.log(bindingParams);
 
     const result = await service.getRequests(bindingParams);
+    // console.log(result);
     res.json(result);
   } catch (err) {
     next(err);

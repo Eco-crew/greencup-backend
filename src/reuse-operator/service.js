@@ -27,6 +27,7 @@ async function getRequests({
     // status: 200,
     success: '요청 현황 목록 조회 완료',
     requests: results, // 조회는 성공했지만 조건에 맞는 요청이 없으면 빈 배열
+    totalCount: results[0]?.totalCount || 0, // over() window 함수를 통해서 얻은, 조회 기준에 맞는 전체 레코드수 (LIMIT 적용 전 전체 개수)
     searchRequestCount: results.length,
     completeCount: results.filter(request => request?.status == 'complete').length,
     incompleteCount: results.filter(request => request?.status == 'incomplete').length,

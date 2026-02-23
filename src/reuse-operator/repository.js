@@ -17,7 +17,8 @@ async function getRequests({ startDate, endDate, partnerName, status, currentBra
       p.site_name AS partnerName,
       DATE_FORMAT(dr.deliver_by_time, '%H:%i') AS wantedVisitTime,
       dr.rental_date AS requestedDate,
-      dr.status
+      dr.status,
+      COUNT(dr.id) OVER() AS totalCount
     FROM daily_rentals dr
     JOIN partners p ON dr.partner_id = p.id
     WHERE dr.rental_date BETWEEN ? AND ?
