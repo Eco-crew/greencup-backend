@@ -84,7 +84,7 @@ async function updateRequestCupQuantity(bindingParams) {
 // (수거지점장) 당일 대여 요청 자동 생성
 async function generatePartnerDailyRequests() {
   const result = await repository.generatePartnerDailyRequests();
-  // console.log(`일일 대여 요청이 자동 생성${result ? '되었' : '되지 않았'}습니다.`);
+  console.log(`일일 대여 요청이 자동 생성${result ? '되었' : '되지 않았'}습니다.`);
   return result;
 }
 
