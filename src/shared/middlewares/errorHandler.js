@@ -16,19 +16,12 @@ function errorHandler(err, req, res, next) {
   if (err instanceof AuthError) {
     errorObject.isLoggedIn = false;
   } else if (err instanceof DBError) {
-    console.log('[DBError] query:', err.query); // 보안 때문에 SQL Query 정보는 백엔드에서만 로그로 확인
-    console.log('[DBError] params:', err.params); // Binding Parameter (예: [id, status])
+    console.log(`[${err.name}] query: ${err.query}`); // 보안 때문에 SQL Query 정보는 백엔드에서만 로그로 확인
+    console.log(`[${err.name}] params: ${err.params}`); // Binding Parameter (예: [id, status])
   }
 
   console.log('errorObject to send to FE:', errorObject);
-
   res.status(status).json(errorObject);
-
-  // if (err instanceof AuthError) {
-  //   return res.status(status).json({ status, message: err.message || 'Internal Server error', isLoggedIn: false });
-  // }
-
-  // res.status(status).json({ status, message: err.message || 'Internal Server error' });
 }
 
 module.exports = errorHandler;
