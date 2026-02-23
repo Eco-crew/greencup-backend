@@ -43,7 +43,6 @@ async function getRequests({ startDate, endDate, partnerName, status, currentBra
   // 정렬 기준: 미완료 우선, 최근 일자 우선, 대여(배송) 시간이 이른 건 우선, 대여 시간이 같으면 대여 수량이 많은 업체 우선
   // binding parameter 형식: startDate or endDate = '2026-02-01'
 
-
   // const args = [startDate, endDate, currentBranchId, limit.toString(), offset.toString()];
   const args = [startDate, endDate];
   // endpoint별 처리: /total 은 status 조건문과 인수 모두 제외하고, /complete 과 /incomplete 은 둘 다 추가
@@ -56,15 +55,17 @@ async function getRequests({ startDate, endDate, partnerName, status, currentBra
 
     const [countResult] = await connection.execute(totalCountQuery, args);
     // console.log('repository.js → countResult:', countResult);
+    const totalCount = countResult[0].totalCount;
 
     // 조회 조건에 맞는 요청 건수가 존재할 때만 요청 목록 쿼리
     args.push(limit.toString());
     args.push(offset.toString());
     // console.log('repository.js → args:', args);
-    const [rows] = (countResult[0].totalCount > 0) ? await connection.execute(query, args) : [[]];
+    // totalCountQuery 개수가 0이면 데이터 쿼리를 실행하지 않음으로써 지연 감소 및 리소스 절약 (DB server disk I/O)
+    const [rows] = (totalCount > 0) ? await connection.execute(query, args) : [[]];
     // console.log('repository.js → rows:', rows);
 
-    return { rows: rows ?? [], totalCount: countResult[0].totalCount };
+    return { rows: rows ?? [], totalCount: totalCount };
 
     // cf. 조회 조건에 따라 결과가 없을 수도 있는 조회이므로, 결과가 없어서 rows에 빈 배열이 반환되어도 오류 아님
   } catch (err) { // SQL 쿼리 실행이 실패한 예외 상황
