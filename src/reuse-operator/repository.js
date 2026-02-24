@@ -8,16 +8,19 @@ const DBError = require('../errors/DBError');
 async function getRequests({ startDate, endDate, partnerName, status, currentBranchId, limit, offset }) {
   let connection;
 
-  // FE 페이지네이션을 위한 레코드 개수 집계 쿼리
-  const totalCountQuery = `
-    SELECT COUNT(*) AS totalCount
+  // FE 페이지네이션, 진행율(Progress bar) 표시 등을 위한 상태별 레코드 개수 집계 쿼리
+  const countQuery = `
+    SELECT dr.status, COUNT(*) AS count
     FROM daily_rentals dr
     JOIN partners p ON dr.partner_id = p.id
     WHERE dr.rental_date BETWEEN ? AND ?
-    ${status ? `AND dr.status = ?` : ''}
     ${partnerName ? `AND p.site_name LIKE ?` : ''}
     AND dr.greencup_branch_id = ?
+    GROUP BY dr.status;
     `;
+  // ${status ? `AND dr.status = ?` : ''}
+  // 레코드 쿼리와 대여일자 및 제휴업체명 조회 조건 동일. status별로 그룹화해서 상태별 레코드 개수 집계
+  // LIMIT/OFFSET을 적용하지 않음으로써 (페이지네이션) 페이지 이동 중에도 동일한 진행율 표시 (적용하면 페이지별로 진행률이 달라진다.)
 
   // 실제 레코드 쿼리
   const query = `
@@ -46,26 +49,28 @@ async function getRequests({ startDate, endDate, partnerName, status, currentBra
   // const args = [startDate, endDate, currentBranchId, limit.toString(), offset.toString()];
   const args = [startDate, endDate];
   // endpoint별 처리: /total 은 status 조건문과 인수 모두 제외하고, /complete 과 /incomplete 은 둘 다 추가
-  if (status) args.push(status); // status 값이 있으면 args 배열 끝에 추가
   if (partnerName) args.push(`%${partnerName}%`); // partnerName 값이 있으면 args 배열 끝에 추가
   args.push(currentBranchId);
 
   try {
     connection = await db.getConnection(); // DB Connection Pool에서 가용 커넥션을 받아온다 (없으면 큐에서 요청 대기)
 
-    const [countResult] = await connection.execute(totalCountQuery, args);
-    // console.log('repository.js → countResult:', countResult);
-    const totalCount = countResult[0].totalCount;
+    const [countRows] = await connection.execute(countQuery, args); // status 별 요청 건수 배열
+    // console.log('repository.js → countRows:', countRows);
 
-    // 조회 조건에 맞는 요청 건수가 존재할 때만 요청 목록 쿼리
+    if (status) args.splice(2, 0, status); // status 값이 있으면 args 배열 3번째 요소로 추가
     args.push(limit.toString());
     args.push(offset.toString());
     // console.log('repository.js → args:', args);
-    // totalCountQuery 개수가 0이면 데이터 쿼리를 실행하지 않음으로써 지연 감소 및 리소스 절약 (DB server disk I/O)
-    const [rows] = (totalCount > 0) ? await connection.execute(query, args) : [[]];
+
+    // 조회 조건에 맞는 요청 건수가 존재할 때만 요청 목록 쿼리
+    // 즉, countQuery 개수가 0이면 데이터 쿼리를 실행하지 않음으로써 지연 감소 및 리소스 절약 (DB server disk I/O)
+    // const [rows] = (totalCount > 0) ? await connection.execute(query, args) : [[]];
+    const [rows] = (countRows.length > 0) ? await connection.execute(query, args) : [[]];
     // console.log('repository.js → rows:', rows);
 
-    return { rows: rows ?? [], totalCount: totalCount };
+    return { rows: rows ?? [], countRows };
+    // return { rows: rows ?? [], totalCount: totalCount };
 
     // cf. 조회 조건에 따라 결과가 없을 수도 있는 조회이므로, 결과가 없어서 rows에 빈 배열이 반환되어도 오류 아님
   } catch (err) { // SQL 쿼리 실행이 실패한 예외 상황
