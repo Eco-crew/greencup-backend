@@ -90,7 +90,7 @@ async function getRequestSettingWithContracts(partnerId) {
   let connection;
 
   const query = `
-  SELECT daily_cup_quantity AS defaultNeedCount , deliver_by_time AS defaultVisitTime, note AS memo
+  SELECT daily_cup_quantity AS defaultNeedCount , DATE_FORMAT(deliver_by_time, '%H:%i') AS defaultVisitTime, note AS memo
   FROM contracts
   WHERE partner_id = ?
   `;
