@@ -8,6 +8,9 @@ INSERT INTO greencup_branches VALUES(UUID(), 'dongdaemun@greencup.co.kr', '공�
 
 
 -- 제휴업체 테이블 샘플 데이터
+-- Template:
+-- INSERT INTO partners VALUES(UUID(), 'email_address', 'manager_name', 'manager_nickname', 'phone_number', 'site_name', 'real_site_address', '07:00:00', '23:00:00', 0, '$2b$10$eVzInbcr641XyqQldA6/pOdiMT1FSCNp.gJoe4rzil3wY.lDHRL42', 'Local', 'office', '523f7925-0038-11f1-a40e-1295856e2c3b', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
 INSERT INTO partners VALUES(UUID(), 'manager@jehyu.co.kr', '김제휴', NULL, '01056436722', '제휴업체1호점', '서울시 성동구 용답동 228-5', '10:00:00', '18:00:00', 3, '$2b$10$IkyAhaiFoLbp.yNwChi7zOGAD0kr2AsB6ufPnXzqvMyKVQvM8ryKO', 'Local', 'office', '523f7925-0038-11f1-a40e-1295856e2c3b', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 -- id: 6415ddc9-003a-11f1-a40e-1295856e2c3b
 INSERT INTO partners VALUES(UUID(), 'insta@starbucks.co.kr', '인스타', 'insta', '01056436722', '스타벅스 장한평역점', '서울시 동대문구 장한로 10', '07:00:00', '22:00:00', 0, '$2b$10$ZmhHnKCrPTgfZL5c4DKNouo1Vllyxy0PA7sofxhZdHB7tH8DkFR.i', 'Local', 'cafe', 'f4517ddd-0038-11f1-a40e-1295856e2c3b', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
@@ -28,6 +31,9 @@ INSERT INTO partners VALUES(UUID(), 'hello@coworkseoul.co.kr', '코워크', 'cow
 
 
 -- 계약 테이블 샘플 데이터
+-- Template:
+-- INSERT INTO contracts VALUES('2020-00-01', '2020-00-00', 000, '09:00:00', '523f7925-0038-11f1-a40e-1295856e2c3b', 'UUID', '비고란', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
 INSERT INTO contracts VALUES('2026-02-01', '2027-01-31', 300, '09:00:00', '523f7925-0038-11f1-a40e-1295856e2c3b', '6415ddc9-003a-11f1-a40e-1295856e2c3b', '8시 전에는 사람 없습니다.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 -- 제휴업체1호점
 INSERT INTO contracts VALUES('2026-02-01', '2026-04-30', 500, '06:30:00', 'f4517ddd-0038-11f1-a40e-1295856e2c3b', 'f7df4f97-003a-11f1-a40e-1295856e2c3b', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
