@@ -57,7 +57,26 @@ async function updateRequestSettingWithMemo(memo, partnerId) {
   
   return {
     // status: 200,
-    success: '필요개수 및 방문시간 설정 수정 성공',
+    success: '비고 메시지 설정 수정 성공',
+    
+  };
+}
+
+//업체지점장-대여현황-비정기 휴무일 수정 
+async function updateRequestSettingSpecialDates(partnerId, addDates, deleteDates) {
+  //추가할 날들마다 순회하며 insert
+  await addDates.forEach(async (date) => {
+    const result = await repository.updateRequestSettingAddSpecialDate(partnerId, date);
+  });
+  
+  //삭제할 날들마다 순회하며 delete
+  await deleteDates.forEach(async (date) => {
+    const result = await repository.updateRequestSettingDeleteSpecialDate(partnerId, date);
+  });
+
+  return {
+    // status: 200,
+    success: '비정기 휴무일 설정 수정 성공',
     
   };
 }
@@ -66,4 +85,5 @@ module.exports = {
   getRequestSetting,
   updateRequestSettingWithCountAndTime,
   updateRequestSettingWithMemo,
+  updateRequestSettingSpecialDates,
 };

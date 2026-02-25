@@ -9,6 +9,8 @@ router.get('/request-settings', authMiddleware.checkLogin, controller.getRequest
 router.put('/request-settings/setting-info', authMiddleware.checkLogin, controller.updateRequestSettingWithCountAndTime);
 //업체지점장-대여관리 수정- 비고메시지 수정 
 router.put('/request-settings/memo', authMiddleware.checkLogin, controller.updateRequestSettingWithMemo);
+//업체지점장-대여관리 수정- 비정기 휴무일 수정 
+router.put('/request-settings/off-dates', authMiddleware.checkLogin, controller.updateRequestSettingSpecialDates);
 
 
 module.exports = router;

@@ -188,6 +188,56 @@ async function updateRequestSettingWithMemo(memo, partnerId) {
   }
 }
 
+//업체지점장-대여현황-비정기 휴무일 수정 - 휴무일 추가
+async function updateRequestSettingAddSpecialDate(partnerId, date) {
+  let connection;
+
+  const query = `
+  INSERT INTO special_closed_dates(partner_id, closed_date)
+  VALUES (?,?)
+  `;
+
+  let bindingParameters = [];
+  bindingParameters.push(partnerId);
+  bindingParameters.push(date);
+
+  try {
+    connection = await db.getConnection(); // DB Connection Pool에서 가용 커넥션을 받아온다 (없으면 큐에서 요청 대기)
+
+    const [result] = await connection.execute(query, bindingParameters);
+    return result.affectedRows == 1;
+  } catch (err) {
+    throw new DBError(err.message, query, bindingParameters);
+  } finally { // 오류 발생시에도 실행 보장
+    if (connection) connection.release(); // connection 리소스 사용 직후 반환
+  }
+}
+
+//업체지점장-대여현황-비정기 휴무일 수정 - 휴무일 삭제
+async function updateRequestSettingDeleteSpecialDate(partnerId, date) {
+  let connection;
+
+  const query = `
+  DELETE FROM special_closed_dates
+  WHERE partner_id = ? AND closed_date = ?
+  `;
+
+  let bindingParameters = [];
+  bindingParameters.push(partnerId);
+  bindingParameters.push(date);
+
+  try {
+    connection = await db.getConnection(); // DB Connection Pool에서 가용 커넥션을 받아온다 (없으면 큐에서 요청 대기)
+
+    const [result] = await connection.execute(query, bindingParameters);
+    return result.affectedRows == 1;
+  } catch (err) {
+    throw new DBError(err.message, query, bindingParameters);
+  } finally { // 오류 발생시에도 실행 보장
+    if (connection) connection.release(); // connection 리소스 사용 직후 반환
+  }
+}
+
 module.exports = {
   getRequestSettingWithDailyAndPartners,
   getRequestSettingWithPartnersAndBranches,
@@ -195,4 +245,6 @@ module.exports = {
   getRequestSettingWithSpecialDates,
   updateRequestSettingWithCountAndTime,
   updateRequestSettingWithMemo,
+  updateRequestSettingAddSpecialDate,
+  updateRequestSettingDeleteSpecialDate
 };

@@ -60,9 +60,23 @@ async function updateRequestSettingWithMemo(req, res, next) {
   }
 }
 
+//업체지점장-대여현황-비정기 휴무일 수정 
+async function updateRequestSettingSpecialDates(req, res, next) {
+
+  const partnerId = req.session.user.id;
+  const { insertedOffDates, deletedOffDates } = req.body;
+
+  try {
+    const result = await service.updateRequestSettingSpecialDates(partnerId, insertedOffDates, deletedOffDates);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
 
 module.exports = {
   getRequestSetting,
   updateRequestSettingWithCountAndTime,
   updateRequestSettingWithMemo,
+  updateRequestSettingSpecialDates,
 };
