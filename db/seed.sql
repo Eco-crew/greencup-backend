@@ -28,19 +28,12 @@ INSERT INTO partners VALUES(UUID(), 'daeil@fastfive.co.kr', '김대일', NULL, '
 INSERT INTO partners VALUES(UUID(), 'manager@fastfive.co.kr', '이호', NULL, '01066531298', '패스트파이브 성수1호점', '서울 성동구 성수동2가 301-94', '07:00:00', '24:00:00', 0, '$2b$11$1H9XN8neiaP1ICCYBhHYSOBFTmkQ0ziyzr.2Ihx4BbE8aurVF/vS.', 'Local', 'office', '523f7925-0038-11f1-a40e-1295856e2c3b', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 INSERT INTO partners VALUES(UUID(), 'taeri@mrsunshine.co.kr', '김태리', NULL, '01017846932', '미스터 션샤인', '서울 성동구 자동차시장1길 64', '06:00:00', '22:00:00', 0, '$2b$11$Pcb2RHNEGpH4oylhX6.3o.X9vPxJDdfgziueLQLjesY0v0x9HYqMy', 'Local', 'office', '523f7925-0038-11f1-a40e-1295856e2c3b', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 INSERT INTO partners VALUES(UUID(), 'musinsastudio@musinsa.com', '박준모', NULL, '01052384701', '무신사스튜디오 성수점', '서울 성동구 아차산로 104 5층', '06:00:00', '24:00:00', 0, '$2b$11$gKh4B8.G.pmVmDF3UnyLTud4mUQAqOCC2iLN8SNuP4XRuOO5OTu3W', 'Local', 'office', '523f7925-0038-11f1-a40e-1295856e2c3b', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-
 -- public
-INSERT INTO partners VALUES(UUID(), 'email_address', 'manager_name', NULL, '01094073526', 'site_name', 'real_site_address', '07:00:00', '23:00:00', 0, '$2b$11$hfP1fg6JrQpEh4emJ3jgRufm60K1m1VBxiVV9pgJ3AKT84lGHwG6i', 'Local', 'office', '523f7925-0038-11f1-a40e-1295856e2c3b', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-INSERT INTO partners VALUES(UUID(), 'email_address', 'manager_name', NULL, '01031649075', 'site_name', 'real_site_address', '07:00:00', '23:00:00', 0, '$2b$11$N02ivaRmZkO.I.ik4fH9F.VfItWWawbUG/ZzB8crp3avlVD3vzJYy', 'Local', 'office', '523f7925-0038-11f1-a40e-1295856e2c3b', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-INSERT INTO partners VALUES(UUID(), 'email_address', 'manager_name', NULL, '01080462159', 'site_name', 'real_site_address', '07:00:00', '23:00:00', 0, '$2b$11$rTSNQm.naYQlSlQM0PCO7uTwKVcxwhhqy/P2M845j0iyU.WKZlN8S', 'Local', 'office', '523f7925-0038-11f1-a40e-1295856e2c3b', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-
--- 성동소방서 소방서
--- 성동세무서 세무서
--- 서울성동경찰서 경찰서
--- 벤처씨드 용답점
-
--- office
-INSERT INTO partners VALUES(UUID(), 'email_address', 'manager_name', NULL, '01039175824', 'site_name', 'real_site_address', '07:00:00', '23:00:00', 0, '$2b$11$745zmwSuSCtkkpw25fbQpema9xvjoalLg8m31azEMGszsxsJlQ4l.', 'Local', 'office', '523f7925-0038-11f1-a40e-1295856e2c3b', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO partners VALUES(UUID(), 'water@fire.seoul.go.kr', '기소화', NULL, '01094073526', '성동소방서', '서울 성동구 살곶이길 331', '06:00:00', '23:00:00', 0, '$2b$11$hfP1fg6JrQpEh4emJ3jgRufm60K1m1VBxiVV9pgJ3AKT84lGHwG6i', 'Local', 'public', '523f7925-0038-11f1-a40e-1295856e2c3b', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO partners VALUES(UUID(), 'moneymoney@s.nts.go.kr', '임세무', NULL, '01031649075', '성동세무서', '서울 성동구 광나루로 297', '09:00:00', '18:00:00', 0, '$2b$11$N02ivaRmZkO.I.ik4fH9F.VfItWWawbUG/ZzB8crp3avlVD3vzJYy', 'Local', 'public', '523f7925-0038-11f1-a40e-1295856e2c3b', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO partners VALUES(UUID(), 'bible@www.smpa.go.kr', '이성경', NULL, '01080462159', '서울성동경찰서', '서울 성동구 왕십리광장로 9', '09:00:00', '18:00:00', 0, '$2b$11$rTSNQm.naYQlSlQM0PCO7uTwKVcxwhhqy/P2M845j0iyU.WKZlN8S', 'Local', 'public', '523f7925-0038-11f1-a40e-1295856e2c3b', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+-- cafe
+INSERT INTO partners VALUES(UUID(), 'rightkim@rightcofee.co.kr', '김바른', NULL, '01039175824', '바른커피', '서울 동대문구 천호대로81길 8', '07:30:00', '20:00:00', 0, '$2b$11$745zmwSuSCtkkpw25fbQpema9xvjoalLg8m31azEMGszsxsJlQ4l.', 'Local', 'cafe', '523f7925-0038-11f1-a40e-1295856e2c3b', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- 비밀번호 hash 바꿀 때 이용할 쿼리:
 -- update partners set password_hash='$2b$10$K/And106a/SuyUWFavob2.FKXTXbnFr5I8ZD7lxMY56sbVQtaxtFe' where manager_name='김제휴';
@@ -52,7 +45,7 @@ INSERT INTO partners VALUES(UUID(), 'email_address', 'manager_name', NULL, '0103
 
 -- 계약 테이블 샘플 데이터
 -- Template:
--- INSERT INTO contracts VALUES('2020-00-01', '2020-00-00', 000, '09:00:00', '523f7925-0038-11f1-a40e-1295856e2c3b', 'UUID', '비고란', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+-- INSERT INTO contracts VALUES('2020-00-01', '2020-00-00', 100, '09:00:00', '523f7925-0038-11f1-a40e-1295856e2c3b', 'UUID', '비고란', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 INSERT INTO contracts VALUES('2026-02-01', '2027-01-31', 300, '09:00:00', '523f7925-0038-11f1-a40e-1295856e2c3b', '6415ddc9-003a-11f1-a40e-1295856e2c3b', '8시 전에는 사람 없습니다.', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 -- 제휴업체1호점
@@ -64,6 +57,11 @@ INSERT INTO contracts VALUES('2026-03-01', '2026-08-30', 500, '07:00:00', '523f7
 -- 성동구청
 INSERT INTO contracts VALUES('2026-01-01', '2026-01-31', 150, '08:00:00', '523f7925-0038-11f1-a40e-1295856e2c3b', '0fe6c42b-0124-11f1-a40e-1295856e2c3b', '현관에서 전화해주세요', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 -- 코워크서울 성수점
+
+-- INSERT INTO contracts 
+ SELECT '2026-02-01', '2027-01-31', 150, DATE_SUB(open_time, INTERVAL 30 MINUTE), greencup_branch_id, id, '', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+  FROM partners
+ WHERE created_at > '2026-02-24';
 
 
 -- 비정기 휴일 테이블 샘플 데이터
