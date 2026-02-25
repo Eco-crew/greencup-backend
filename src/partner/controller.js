@@ -74,9 +74,24 @@ async function updateRequestSettingSpecialDates(req, res, next) {
   }
 }
 
+//업체지점장-대여현황-정기 휴무 요일 수정 
+async function updateRequestSettingClosedDays(req, res, next) {
+
+  const partnerId = req.session.user.id;
+  const { weeklyOffDays } = req.body;
+
+  try {
+    const result = await service.updateRequestSettingClosedDays(weeklyOffDays, partnerId);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   getRequestSetting,
   updateRequestSettingWithCountAndTime,
   updateRequestSettingWithMemo,
   updateRequestSettingSpecialDates,
+  updateRequestSettingClosedDays,
 };

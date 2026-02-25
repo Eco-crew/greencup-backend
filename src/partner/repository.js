@@ -238,6 +238,32 @@ async function updateRequestSettingDeleteSpecialDate(partnerId, date) {
   }
 }
 
+//업체지점장-대여현황-정기 휴무 요일 수정
+async function updateRequestSettingClosedDays(closedDays, partnerId) {
+  let connection;
+
+  const query = `
+  UPDATE partners
+  SET closed_days = ?
+  WHERE id = ?
+  `;
+
+  let bindingParameters = [];
+  bindingParameters.push(closedDays);
+  bindingParameters.push(partnerId);
+
+  try {
+    connection = await db.getConnection(); // DB Connection Pool에서 가용 커넥션을 받아온다 (없으면 큐에서 요청 대기)
+
+    const [result] = await connection.execute(query, bindingParameters);
+    return result.affectedRows == 1;
+  } catch (err) {
+    throw new DBError(err.message, query, bindingParameters);
+  } finally { // 오류 발생시에도 실행 보장
+    if (connection) connection.release(); // connection 리소스 사용 직후 반환
+  }
+}
+
 module.exports = {
   getRequestSettingWithDailyAndPartners,
   getRequestSettingWithPartnersAndBranches,
@@ -246,5 +272,6 @@ module.exports = {
   updateRequestSettingWithCountAndTime,
   updateRequestSettingWithMemo,
   updateRequestSettingAddSpecialDate,
-  updateRequestSettingDeleteSpecialDate
+  updateRequestSettingDeleteSpecialDate,
+  updateRequestSettingClosedDays,
 };

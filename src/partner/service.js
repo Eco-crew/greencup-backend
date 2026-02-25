@@ -1,8 +1,8 @@
 // Business Logic
 const repository = require('./repository');
 const AppError = require('../errors/AppError');
-const { convertClosedDays } = require('../shared/utils/date');
-const {formatPhoneNumber} = require('../shared/utils/phone')
+const { convertClosedDays, convertClosedDaysToBit } = require('../shared/utils/date');
+const { formatPhoneNumber } = require('../shared/utils/phone')
 
 /****************************************************************************************************
  *  제휴업체 - 메뉴명 또는 업무명                                                                     *
@@ -37,28 +37,28 @@ async function getRequestSetting(partnerId) {
   offDates.forEach((date) => {
     changeNameClosedDates.push(date.offDates);
   });
-  return {partnerInfo:partnerInfo, reuseInfo:reuseInfo, settingInfo:settingInfo, weeklyOffDays:weeklyOffDayList, offDates:changeNameClosedDates};
+  return { partnerInfo: partnerInfo, reuseInfo: reuseInfo, settingInfo: settingInfo, weeklyOffDays: weeklyOffDayList, offDates: changeNameClosedDates };
 }
 
 //업체지점장-대여관리 수정- 필요한 갯수와 방문시간 수정 
 async function updateRequestSettingWithCountAndTime(defaultNeedCount, defaultVisitTime, partnerId) {
   const result = await repository.updateRequestSettingWithCountAndTime(defaultNeedCount, defaultVisitTime, partnerId);
-  
+
   return {
     // status: 200,
     success: '필요개수 및 방문시간 설정 수정 성공',
-    
+
   };
 }
 
 //업체지점장-대여관리 수정- 비고 메시지 수정 
 async function updateRequestSettingWithMemo(memo, partnerId) {
   const result = await repository.updateRequestSettingWithMemo(memo, partnerId);
-  
+
   return {
     // status: 200,
     success: '비고 메시지 설정 수정 성공',
-    
+
   };
 }
 
@@ -68,7 +68,7 @@ async function updateRequestSettingSpecialDates(partnerId, addDates, deleteDates
   await addDates.forEach(async (date) => {
     const result = await repository.updateRequestSettingAddSpecialDate(partnerId, date);
   });
-  
+
   //삭제할 날들마다 순회하며 delete
   await deleteDates.forEach(async (date) => {
     const result = await repository.updateRequestSettingDeleteSpecialDate(partnerId, date);
@@ -77,8 +77,23 @@ async function updateRequestSettingSpecialDates(partnerId, addDates, deleteDates
   return {
     // status: 200,
     success: '비정기 휴무일 설정 수정 성공',
-    
+
   };
+}
+
+//업체지점장-대여현황-정기 휴무 요일 수정 
+async function updateRequestSettingClosedDays(closedDays, partnerId) {
+  //문자배열을 10진수 숫자로 바꾼다
+  const numberClosedDays = convertClosedDaysToBit(closedDays);
+
+  const result = await repository.updateRequestSettingClosedDays(numberClosedDays, partnerId);
+
+  return {
+    // status: 200,
+    success: '정기 휴무 요일 설정 수정 성공',
+
+  };
+
 }
 
 module.exports = {
@@ -86,4 +101,5 @@ module.exports = {
   updateRequestSettingWithCountAndTime,
   updateRequestSettingWithMemo,
   updateRequestSettingSpecialDates,
+  updateRequestSettingClosedDays,
 };

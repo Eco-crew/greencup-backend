@@ -11,6 +11,8 @@ router.put('/request-settings/setting-info', authMiddleware.checkLogin, controll
 router.put('/request-settings/memo', authMiddleware.checkLogin, controller.updateRequestSettingWithMemo);
 //업체지점장-대여관리 수정- 비정기 휴무일 수정 
 router.put('/request-settings/off-dates', authMiddleware.checkLogin, controller.updateRequestSettingSpecialDates);
+//업체지점장-대여관리 수정- 정기 휴무 요일 수정 
+router.put('/request-settings/weekly-off-days', authMiddleware.checkLogin, controller.updateRequestSettingClosedDays);
 
 
 module.exports = router;
