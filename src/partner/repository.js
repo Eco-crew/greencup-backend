@@ -162,11 +162,37 @@ async function updateRequestSettingWithCountAndTime(defaultNeedCount, defaultVis
   }
 }
 
+//업체지점장-대여관리 수정-비고 메시지 수정
+async function updateRequestSettingWithMemo(memo, partnerId) {
+  let connection;
+
+  const query = `
+  UPDATE contracts
+  SET note = ?
+  WHERE partner_id = ?
+  `;
+
+  let bindingParameters = [];
+  bindingParameters.push(memo);
+  bindingParameters.push(partnerId);
+
+  try {
+    connection = await db.getConnection(); // DB Connection Pool에서 가용 커넥션을 받아온다 (없으면 큐에서 요청 대기)
+
+    const [result] = await connection.execute(query, bindingParameters);
+    return result.affectedRows == 1;
+  } catch (err) {
+    throw new DBError(err.message, query, bindingParameters);
+  } finally { // 오류 발생시에도 실행 보장
+    if (connection) connection.release(); // connection 리소스 사용 직후 반환
+  }
+}
 
 module.exports = {
   getRequestSettingWithDailyAndPartners,
   getRequestSettingWithPartnersAndBranches,
   getRequestSettingWithContracts,
   getRequestSettingWithSpecialDates,
-  updateRequestSettingWithCountAndTime
+  updateRequestSettingWithCountAndTime,
+  updateRequestSettingWithMemo,
 };

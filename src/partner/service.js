@@ -50,7 +50,20 @@ async function updateRequestSettingWithCountAndTime(defaultNeedCount, defaultVis
     
   };
 }
+
+//업체지점장-대여관리 수정- 비고 메시지 수정 
+async function updateRequestSettingWithMemo(memo, partnerId) {
+  const result = await repository.updateRequestSettingWithMemo(memo, partnerId);
+  
+  return {
+    // status: 200,
+    success: '필요개수 및 방문시간 설정 수정 성공',
+    
+  };
+}
+
 module.exports = {
   getRequestSetting,
   updateRequestSettingWithCountAndTime,
+  updateRequestSettingWithMemo,
 };

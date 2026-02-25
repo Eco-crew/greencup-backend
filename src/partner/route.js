@@ -7,6 +7,8 @@ const authMiddleware = require('../shared/middlewares/auth'); // 로그인 인�
 router.get('/request-settings', authMiddleware.checkLogin, controller.getRequestSetting);
 //업체지점장-대여관리 수정- 필요한 갯수와 방문시간 수정 
 router.put('/request-settings/setting-info', authMiddleware.checkLogin, controller.updateRequestSettingWithCountAndTime);
+//업체지점장-대여관리 수정- 비고메시지 수정 
+router.put('/request-settings/memo', authMiddleware.checkLogin, controller.updateRequestSettingWithMemo);
 
 
 module.exports = router;

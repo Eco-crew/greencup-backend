@@ -39,8 +39,22 @@ async function updateRequestSettingWithCountAndTime(req, res, next) {
   const { defaultNeedCount, defaultVisitTime } = req.body;
 
   try {
-    const requestSetting = await service.updateRequestSettingWithCountAndTime(defaultNeedCount, defaultVisitTime, partnerId);
-    res.json(requestSetting);
+    const result = await service.updateRequestSettingWithCountAndTime(defaultNeedCount, defaultVisitTime, partnerId);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+//업체지점장-대여관리 수정- 비고 메시지 수정 
+async function updateRequestSettingWithMemo(req, res, next) {
+
+  const partnerId = req.session.user.id;
+  const { memo } = req.body;
+
+  try {
+    const result = await service.updateRequestSettingWithMemo(memo, partnerId);
+    res.json(result);
   } catch (err) {
     next(err);
   }
@@ -50,4 +64,5 @@ async function updateRequestSettingWithCountAndTime(req, res, next) {
 module.exports = {
   getRequestSetting,
   updateRequestSettingWithCountAndTime,
+  updateRequestSettingWithMemo,
 };
