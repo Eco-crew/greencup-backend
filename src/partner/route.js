@@ -4,5 +4,15 @@ const controller = require('./controller');
 const authMiddleware = require('../shared/middlewares/auth'); // 로그인 인증 미들웨어
 
 // 기본 대여 설정 조회
-// router.get('/api/partner/request-settings', authMiddleware.checkLogin, controller.getRequestSetting);
+router.get('/request-settings', authMiddleware.checkLogin, controller.getRequestSetting);
+//업체지점장-대여관리 수정- 필요한 갯수와 방문시간 수정 
+router.put('/request-settings/setting-info', authMiddleware.checkLogin, controller.updateRequestSettingWithCountAndTime);
+//업체지점장-대여관리 수정- 비고메시지 수정 
+router.put('/request-settings/memo', authMiddleware.checkLogin, controller.updateRequestSettingWithMemo);
+//업체지점장-대여관리 수정- 비정기 휴무일 수정 
+router.put('/request-settings/off-dates', authMiddleware.checkLogin, controller.updateRequestSettingSpecialDates);
+//업체지점장-대여관리 수정- 정기 휴무 요일 수정 
+router.put('/request-settings/weekly-off-days', authMiddleware.checkLogin, controller.updateRequestSettingClosedDays);
 
+
+module.exports = router;
