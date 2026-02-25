@@ -27,7 +27,7 @@ async function functionTemplate({ }) {
 /****************************************************************************************************
  *  제휴업체 - 메뉴명 또는 업무명                                                                     *
  ****************************************************************************************************/
-//업체지점장-대여현황-dailyrentals와 partners 조인
+//업체지점장-대여관리-dailyrentals와 partners 조인
 async function getRequestSettingWithDailyAndPartners(partnerId) {
   let connection;
 
@@ -50,16 +50,16 @@ async function getRequestSettingWithDailyAndPartners(partnerId) {
   try {
     connection = await db.getConnection(); // DB Connection Pool에서 가용 커넥션을 받아온다 (없으면 큐에서 요청 대기)
 
-    const [result] = await connection.query(query, [bindingParameters]);
+    const [result] = await connection.query(query, bindingParameters);
     return result[0] || null;
   } catch (err) {
-    throw new DBError(err.message, query, [bindingParameters]);
+    throw new DBError(err.message, query, bindingParameters);
   } finally { // 오류 발생시에도 실행 보장
     if (connection) connection.release(); // connection 리소스 사용 직후 반환
   }
 }
 
-//업체지점장-대여현황-partners와 greencupbranches 조인
+//업체지점장-대여관리-partners와 greencupbranches 조인
 async function getRequestSettingWithPartnersAndBranches(partnerId) {
   let connection;
 
@@ -76,16 +76,16 @@ async function getRequestSettingWithPartnersAndBranches(partnerId) {
   try {
     connection = await db.getConnection(); // DB Connection Pool에서 가용 커넥션을 받아온다 (없으면 큐에서 요청 대기)
 
-    const [result] = await connection.query(query, [bindingParameters]);
+    const [result] = await connection.query(query, bindingParameters);
     return result[0] || null;
   } catch (err) {
-    throw new DBError(err.message, query, [bindingParameters]);
+    throw new DBError(err.message, query, bindingParameters);
   } finally { // 오류 발생시에도 실행 보장
     if (connection) connection.release(); // connection 리소스 사용 직후 반환
   }
 }
 
-//업체지점장-대여현황-contracts
+//업체지점장-대여관리-contracts
 async function getRequestSettingWithContracts(partnerId) {
   let connection;
 
@@ -101,16 +101,16 @@ async function getRequestSettingWithContracts(partnerId) {
   try {
     connection = await db.getConnection(); // DB Connection Pool에서 가용 커넥션을 받아온다 (없으면 큐에서 요청 대기)
 
-    const [result] = await connection.query(query, [bindingParameters]);
+    const [result] = await connection.query(query, bindingParameters);
     return result[0] || null;
   } catch (err) {
-    throw new DBError(err.message, query, [bindingParameters]);
+    throw new DBError(err.message, query, bindingParameters);
   } finally { // 오류 발생시에도 실행 보장
     if (connection) connection.release(); // connection 리소스 사용 직후 반환
   }
 }
 
-//업체지점장-대여현황-special_closed_dates
+//업체지점장-대여관리-special_closed_dates
 async function getRequestSettingWithSpecialDates(partnerId) {
   let connection;
 
@@ -126,15 +126,41 @@ async function getRequestSettingWithSpecialDates(partnerId) {
   try {
     connection = await db.getConnection(); // DB Connection Pool에서 가용 커넥션을 받아온다 (없으면 큐에서 요청 대기)
 
-    const [result] = await connection.query(query, [bindingParameters]);
+    const [result] = await connection.query(query, bindingParameters);
     return result || null;
   } catch (err) {
-    throw new DBError(err.message, query, [bindingParameters]);
+    throw new DBError(err.message, query, bindingParameters);
   } finally { // 오류 발생시에도 실행 보장
     if (connection) connection.release(); // connection 리소스 사용 직후 반환
   }
 }
 
+//업체지점장-대여관리 수정-필요한 갯수와 방문시간 수정
+async function updateRequestSettingWithCountAndTime(defaultNeedCount, defaultVisitTime, partnerId) {
+  let connection;
+
+  const query = `
+  UPDATE contracts
+  SET daily_cup_quantity = ?, deliver_by_time= ?
+  WHERE partner_id = ?
+  `;
+
+  let bindingParameters = [];
+  bindingParameters.push(defaultNeedCount);
+  bindingParameters.push(defaultVisitTime);
+  bindingParameters.push(partnerId);
+
+  try {
+    connection = await db.getConnection(); // DB Connection Pool에서 가용 커넥션을 받아온다 (없으면 큐에서 요청 대기)
+
+    const [result] = await connection.execute(query, bindingParameters);
+    return result.affectedRows == 1;
+  } catch (err) {
+    throw new DBError(err.message, query, bindingParameters);
+  } finally { // 오류 발생시에도 실행 보장
+    if (connection) connection.release(); // connection 리소스 사용 직후 반환
+  }
+}
 
 
 module.exports = {
@@ -142,4 +168,5 @@ module.exports = {
   getRequestSettingWithPartnersAndBranches,
   getRequestSettingWithContracts,
   getRequestSettingWithSpecialDates,
+  updateRequestSettingWithCountAndTime
 };

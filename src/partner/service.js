@@ -18,6 +18,7 @@ async function functionTemplate({ }) {
 /****************************************************************************************************
  *  제휴업체 - 메뉴명 또는 업무명                                                                     *
  ****************************************************************************************************/
+//업체지점장-대여관리-데이터 읽기
 async function getRequestSetting(partnerId) {
   let partnerInfo = await repository.getRequestSettingWithDailyAndPartners(partnerId);
   const weeklyOffDayList = convertClosedDays(partnerInfo.weeklyOffDays);
@@ -39,7 +40,17 @@ async function getRequestSetting(partnerId) {
   return {partnerInfo:partnerInfo, reuseInfo:reuseInfo, settingInfo:settingInfo, weeklyOffDays:weeklyOffDayList, offDates:changeNameClosedDates};
 }
 
-
+//업체지점장-대여관리 수정- 필요한 갯수와 방문시간 수정 
+async function updateRequestSettingWithCountAndTime(defaultNeedCount, defaultVisitTime, partnerId) {
+  const result = await repository.updateRequestSettingWithCountAndTime(defaultNeedCount, defaultVisitTime, partnerId);
+  
+  return {
+    // status: 200,
+    success: '필요개수 및 방문시간 설정 수정 성공',
+    
+  };
+}
 module.exports = {
-  getRequestSetting
+  getRequestSetting,
+  updateRequestSettingWithCountAndTime,
 };
