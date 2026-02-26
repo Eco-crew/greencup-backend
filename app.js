@@ -24,14 +24,14 @@ app.use(session({
 app.use(morgan('dev'));
 
 
-app.use(express.static('dist')); // FE에서 npm run build (vite build)로 빌드한 정적 파일 제공
+app.use(express.static(path.join(__dirname, 'dist'))); // 빌드한 FE 정적 파일 제공. 절대 경로 사용
 
 // Middleware - Routing
 app.use('/api/auth', authRoute);
 app.use('/api/reuse-operator', reuseOperatorRoute);
 app.use('/api/partner', partnerRoute);
 
-app.get('*', (req, res) => {
+app.get('/*', (req, res) => { // API endpoint가 아닌 주소로 온 모든 요청에 대해서 빌드한 FE 파일 응답 → React Router가 라우팅
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
