@@ -24,13 +24,16 @@ app.use(session({
 app.use(morgan('dev'));
 
 
-app.use(express.static('public')); // FE에서 npm run build (vite build)로 빌드한 정적 파일 제공
+app.use(express.static('dist')); // FE에서 npm run build (vite build)로 빌드한 정적 파일 제공
 
 // Middleware - Routing
 app.use('/api/auth', authRoute);
 app.use('/api/reuse-operator', reuseOperatorRoute);
 app.use('/api/partner', partnerRoute);
 
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
 
 // Middleware - Error Handler (※ 모든 라우터 등록 후 마지막에 등록해야 함!)
 app.use(errorHandler);
