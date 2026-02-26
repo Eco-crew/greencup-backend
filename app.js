@@ -31,7 +31,9 @@ app.use('/api/auth', authRoute);
 app.use('/api/reuse-operator', reuseOperatorRoute);
 app.use('/api/partner', partnerRoute);
 
-app.get('/*', (req, res) => { // API endpoint가 아닌 주소로 온 모든 요청에 대해서 빌드한 FE 파일 응답 → React Router가 라우팅
+app.use((req, res, next) => { // API endpoint가 아닌 주소로 온 모든 요청에 대해서 빌드한 FE 파일 응답 → React Router가 라우팅
+  if (req.path.startsWith('api')) return next();
+
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
