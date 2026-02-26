@@ -88,7 +88,9 @@ CREATE TABLE special_closed_dates (
   note VARCHAR(128), -- 비고
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (partner_id, closed_date), -- 한 '제휴 업체'가 '비정기 휴일이 같은' 레코드를 한 개밖에 가질 수 없으므로, PK를 이 복합키로 설정
+  PRIMARY KEY (closed_date, partner_id), -- 한 '제휴 업체'가 '비정기 휴일이 같은' 레코드를 한 개밖에 가질 수 없으므로, PK를 이 복합키로 설정
+  -- 오늘이 휴일인 레코드 중에서 특정 제휴업체를 찾을 것이므로, closed_date를 복합키에서 우선 칼럼으로 변경
+  -- (예전처럼 partner_id를 우선하면, 해당 업체의 레코드가 존재하면 그 업체의 비정기 휴일 '기록'을 다 순회할 것이므로)
   FOREIGN KEY (partner_id)
   REFERENCES partners(id)
   ON DELETE NO ACTION
