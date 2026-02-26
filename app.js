@@ -15,7 +15,6 @@ const app = express();
 
 
 // Middleware
-// app.use(express.static('public')); // frontend가 있어서 필요 없을 듯
 app.use(express.json());
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -24,10 +23,14 @@ app.use(session({
 }));
 app.use(morgan('dev'));
 
+
+app.use(express.static('public')); // FE에서 npm run build (vite build)로 빌드한 정적 파일 제공
+
 // Middleware - Routing
 app.use('/api/auth', authRoute);
 app.use('/api/reuse-operator', reuseOperatorRoute);
 app.use('/api/partner', partnerRoute);
+
 
 // Middleware - Error Handler (※ 모든 라우터 등록 후 마지막에 등록해야 함!)
 app.use(errorHandler);
