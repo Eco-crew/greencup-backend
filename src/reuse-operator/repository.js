@@ -178,6 +178,20 @@ async function updateRequestCupQuantity({ requestId, currentBranchId, brokenLost
 async function generatePartnerDailyRequests() {
   let connection;
 
+  // 1. 오늘이 정기 휴일인 제휴업체는 당일 대여 요청을 생성하지 않는다.
+  // (주당 평균 빈도수 1~2회로 가장 많이 발생하는 휴일이므로, 이 조건으로 우선 필터링해서 휴일 제휴업체 제외)
+
+  // 2. 오늘이 비정기 휴일인 제휴업체도 당일 대여 요청을 생성하지 않는다.
+  // 비정기 휴일 테이블은 history 테이블의 성격을 띄어서 운영 기간이 길어질수록 레코드가 많아질테니,
+  // (partner_id로 조인하면 제휴업체별로 그동안의 비정기 휴일 전부와 연결되므로)
+  // contract 테이블과 조인하지 말고 별개의 단일 쿼리 또는 아래 3에서 FROM 다음에 contract 대신 서브 쿼리로 사용하는 게 낫겠다.
+  // 특별한 일이 없는 대부분의 제휴업체는 1년에 몇 회 발생하지 않을 거라, 발생 빈도수가 낮아서 이 조건은 후순위 필터링
+
+  // 3. 위 1, 2로 필터링해서 남은 제휴업체 중 계약기간이 만료되지 않은 업체에 한해서 당일 대여 요청을 생성
+
+  // 일단은 위 방식처럼 여러 번 쿼리를 나눠서 필터링하지 않고, 서브쿼리를 이용한 긴 쿼리문 한 개를 생성해서 처리
+  // 위 방식대로 1번 필터 적용 → 2번 필터 적용 후 결과로 받은 제휴업체 목록을 가지고, 계약 정보를 읽어와서 처리하는 방식과
+  // 비교했을 때 어떤 방식이 나을지는 추후 고민해봐야겠다.
   const query = `
     INSERT INTO daily_rentals(
       id,
@@ -200,7 +214,21 @@ async function generatePartnerDailyRequests() {
       note
     FROM contracts
     WHERE CURDATE() <= contract_end_date;
-    `;
+    AND partner_id IN (SELECT id
+                      FROM partners
+                      WHERE IF (CASE DAYOFWEEK(CURDATE())
+                                  WHEN 1 THEN 1
+                                  WHEN 2 THEN 64
+                                  WHEN 3 THEN 32
+                                  WHEN 4 THEN 16
+                                  WHEN 5 THEN 8
+                                  WHEN 6 THEN 4
+                                  WHEN 7 THEN 2
+                                  END & closed_days = 0, 'open', 'closed') = 'open'
+                      AND id NOT IN (SELECT partner_id
+                                    FROM special_closed_dates
+                                    WHERE CURDATE() = closed_date));
+    `; // 오늘 영업하는(정기 휴일, 비정기 휴일 둘 다 아닌) 제휴업체의 계약 정보를 바탕으로 당일 대여 요청 자동 생성
 
   try {
     connection = await db.getConnection();
