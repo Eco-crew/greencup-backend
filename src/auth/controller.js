@@ -35,7 +35,7 @@ async function callback(req, res, next) {
       req.session.user = user;
 
       const entityURI = userType === 'reuseOperator' ? 'reuse-operator' : 'partner';
-      res.redirect(`${process.env.REACT_SERVER_URL}/${entityURI}/requests`);
+      res.redirect(`/${entityURI}/requests`); // 정적 파일 배포 후 Expres Server 환경에 맞게 상대 주소로 변경
     }
   } catch (err) {
     next(err);
@@ -95,4 +95,4 @@ async function profile(req, res, next) {
   }
 };
 
-module.exports = { oauthLogin, callback, login, logout, checkLogin, profile};
+module.exports = { oauthLogin, callback, login, logout, checkLogin, profile };
