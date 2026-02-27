@@ -213,7 +213,7 @@ async function generatePartnerDailyRequests() {
       'incomplete',
       note
     FROM contracts
-    WHERE CURDATE() <= contract_end_date;
+    WHERE CURDATE() <= contract_end_date
     AND partner_id IN (SELECT id
                       FROM partners
                       WHERE IF (CASE DAYOFWEEK(CURDATE())
