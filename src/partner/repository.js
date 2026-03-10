@@ -36,11 +36,11 @@ async function getRequestSettingWithDailyAndPartners(partnerId) {
   p.site_name AS partnerName,
   p.manager_name AS partnerManagerName,
   p.closed_days AS weeklyOffDays,
-  SUM(d.rented_cup_quantity)  AS totalLoanCount,
-  SUM(d.returned_cup_quantity) AS totalReturnCount,
-  SUM(d.lost_cup_quantity)    AS totalBrokenLostCount 
+  COALESCE(SUM(d.rented_cup_quantity),0)  AS totalLoanCount,
+  COALESCE(SUM(d.returned_cup_quantity),0) AS totalReturnCount,
+  COALESCE(SUM(d.lost_cup_quantity),0) AS totalBrokenLostCount 
   FROM partners p 
-  JOIN daily_rentals d ON d.partner_id = p.id 
+  LEFT JOIN daily_rentals d ON d.partner_id = p.id 
   WHERE p.id = ?
   `;
 
